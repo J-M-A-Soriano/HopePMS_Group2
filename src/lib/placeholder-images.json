@@ -1,3 +1,52 @@
 {
-  "placeholderImages": []
+  "placeholderImages": [
+    {
+      "id": "prod_1",
+      "description": "A modern wireless headphone.",
+      "imageUrl": "https://picsum.photos/seed/1/600/400",
+      "imageHint": "wireless headphones"
+    },
+    {
+      "id": "prod_2",
+      "description": "A sleek and powerful laptop.",
+      "imageUrl": "https://picsum.photos/seed/2/600/400",
+      "imageHint": "modern laptop"
+    },
+    {
+      "id": "prod_3",
+      "description": "A smart watch with a vibrant display.",
+      "imageUrl": "https://picsum.photos/seed/3/600/400",
+      "imageHint": "smart watch"
+    },
+    {
+      "id": "prod_4",
+      "description": "A professional-grade camera.",
+      "imageUrl": "https://picsum.photos/seed/4/600/400",
+      "imageHint": "dslr camera"
+    },
+    {
+      "id": "prod_5",
+      "description": "A comfortable ergonomic office chair.",
+      "imageUrl": "https://picsum.photos/seed/5/600/400",
+      "imageHint": "office chair"
+    },
+    {
+      "id": "prod_6",
+      "description": "A portable bluetooth speaker.",
+      "imageUrl": "https://picsum.photos/seed/6/600/400",
+      "imageHint": "bluetooth speaker"
+    },
+    {
+      "id": "prod_7",
+      "description": "An electric coffee grinder.",
+      "imageUrl": "https://picsum.photos/seed/7/600/400",
+      "imageHint": "coffee grinder"
+    },
+    {
+      "id": "prod_8",
+      "description": "A minimalist backpack.",
+      "imageUrl": "https://picsum.photos/seed/8/600/400",
+      "imageHint": "minimalist backpack"
+    }
+  ]
 }
