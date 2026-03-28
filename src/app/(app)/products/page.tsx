@@ -57,7 +57,7 @@ export default function ProductsPage() {
           <BreadcrumbList>
             <BreadcrumbItem>
               <BreadcrumbLink asChild>
-                <Link href="#">ProdSync</Link>
+                <Link href="#">HopePMS</Link>
               </BreadcrumbLink>
             </BreadcrumbItem>
             <BreadcrumbSeparator />

@@ -14,7 +14,7 @@ export default function LoginPage() {
       <div className="flex items-center space-x-2">
         <Gem className="h-8 w-8 text-primary" />
         <h1 className="text-3xl font-bold tracking-tight text-primary">
-          ProdSync
+          HopePMS
         </h1>
       </div>
       <Card className="w-full max-w-sm">

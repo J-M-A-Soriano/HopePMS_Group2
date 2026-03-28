@@ -50,7 +50,7 @@ export function MainSidebar() {
               <Gem />
             </Link>
           </Button>
-          <span className="truncate font-semibold text-primary">ProdSync</span>
+          <span className="truncate font-semibold text-primary">HopePMS</span>
         </div>
       </SidebarHeader>
 

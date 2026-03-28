@@ -7,7 +7,7 @@ import { cn } from "@/lib/utils";
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 
 export const metadata: Metadata = {
-  title: "ProdSync",
+  title: "HopePMS",
   description: "Product Management System by Group 2",
 };
 
