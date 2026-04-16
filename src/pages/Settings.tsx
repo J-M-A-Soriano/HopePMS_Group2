@@ -44,7 +44,7 @@ export function Settings() {
       await updateSystemConfig({ business_name: bizName, tax_id: bizTin });
       showFeedback('Business Identity Variables perfectly synced to database.');
     } catch(e: any) {
-      alert("Error: Database syncing failed. Are you Superadmin? " + e.message);
+      window.alert("Error: Database syncing failed. Are you Superadmin? " + e.message);
     }
   };
 
@@ -53,7 +53,7 @@ export function Settings() {
       await updateSystemConfig({ shift_lockout: lockout });
       showFeedback(`Operational rule enforced: ${lockout}`);
     } catch(e: any) {
-      alert("Error: Database syncing failed. " + e.message);
+      window.alert("Error: Database syncing failed. " + e.message);
     }
   };
 
@@ -62,7 +62,7 @@ export function Settings() {
       await updateSystemConfig({ blueprint_prefix: blueprint });
       showFeedback('Database generator prefix has been permanently shifted.');
     } catch(e: any) {
-      alert("Error: Database syncing failed. " + e.message);
+      window.alert("Error: Database syncing failed. " + e.message);
     }
   };
 
