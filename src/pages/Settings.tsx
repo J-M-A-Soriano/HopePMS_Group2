@@ -72,10 +72,10 @@ export function Settings() {
     <div className="p-8 pb-16 relative">
       <div className="flex justify-between items-center mb-6">
         <div>
-          <h1 className="text-3xl font-bold text-slate-800 flex items-center gap-3">
+          <h1 className="text-3xl font-bold text-slate-800 dark:text-white flex items-center gap-3">
             <SettingsIcon className="w-8 h-8 text-primary" /> System Configuration
           </h1>
-          <p className="text-slate-500">Superadmin global operational parameters directly synced to Cloud.</p>
+          <p className="text-slate-500 dark:text-slate-400">Superadmin global operational parameters directly synced to Cloud.</p>
         </div>
       </div>
 
@@ -87,44 +87,44 @@ export function Settings() {
       )}
 
       <div className="grid md:grid-cols-2 gap-6 max-w-4xl">
-        <div className="bg-white rounded-lg border shadow-sm p-6">
-          <div className="flex items-center gap-3 mb-4 border-b pb-3">
+        <div className="bg-white dark:bg-slate-800 rounded-lg border dark:border-slate-700 shadow-sm p-6 transition-colors">
+          <div className="flex items-center gap-3 mb-4 border-b dark:border-slate-700 pb-3">
             <Store className="w-5 h-5 text-indigo-500" />
-            <h2 className="text-lg font-bold text-slate-800">Business Identity</h2>
+            <h2 className="text-lg font-bold text-slate-800 dark:text-white">Business Identity</h2>
           </div>
           <div className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">Receipt Business Name</label>
+              <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Receipt Business Name</label>
               <input 
                 type="text" 
-                className="w-full border rounded px-3 py-2 text-sm focus:ring-2 outline-none focus:ring-indigo-500/20" 
+                className="w-full border dark:border-slate-600 bg-white dark:bg-slate-900 text-slate-900 dark:text-white rounded px-3 py-2 text-sm focus:ring-2 outline-none focus:ring-indigo-500/20" 
                 value={bizName}
                 onChange={(e) => setBizName(e.target.value)}
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">Tax Identification Number (TIN)</label>
+              <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Tax Identification Number (TIN)</label>
               <input 
                  type="text" 
-                 className="w-full border rounded px-3 py-2 text-sm focus:ring-2 outline-none focus:ring-indigo-500/20" 
+                 className="w-full border dark:border-slate-600 bg-white dark:bg-slate-900 text-slate-900 dark:text-white rounded px-3 py-2 text-sm focus:ring-2 outline-none focus:ring-indigo-500/20" 
                  value={bizTin}
                  onChange={(e) => setBizTin(e.target.value)}
               />
             </div>
-            <button onClick={handleSaveIdentity} className="bg-indigo-50 text-indigo-600 font-medium px-4 py-2 rounded text-sm hover:bg-indigo-100 transition-colors">Force Sync Identity</button>
+            <button onClick={handleSaveIdentity} className="bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 font-medium px-4 py-2 rounded text-sm hover:bg-indigo-100 dark:hover:bg-indigo-900/50 transition-colors">Force Sync Identity</button>
           </div>
         </div>
 
-        <div className="bg-white rounded-lg border shadow-sm p-6">
-          <div className="flex items-center gap-3 mb-4 border-b pb-3">
+        <div className="bg-white dark:bg-slate-800 rounded-lg border dark:border-slate-700 shadow-sm p-6 transition-colors">
+          <div className="flex items-center gap-3 mb-4 border-b dark:border-slate-700 pb-3">
             <Clock className="w-5 h-5 text-orange-500" />
-            <h2 className="text-lg font-bold text-slate-800">Operational Enforcements</h2>
+            <h2 className="text-lg font-bold text-slate-800 dark:text-white">Operational Enforcements</h2>
           </div>
           <div className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">Global Shift Lockout</label>
+              <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Global Shift Lockout</label>
               <select 
-                className="w-full border rounded px-3 py-2 text-sm focus:ring-2 outline-none focus:ring-orange-500/20"
+                className="w-full border dark:border-slate-600 bg-white dark:bg-slate-900 text-slate-900 dark:text-white rounded px-3 py-2 text-sm focus:ring-2 outline-none focus:ring-orange-500/20"
                 value={lockout}
                 onChange={(e) => setLockout(e.target.value)}
               >
@@ -133,33 +133,33 @@ export function Settings() {
                 <option value="Enforce Night Shift (8PM-4AM)">Enforce Night Shift (8PM-4AM)</option>
               </select>
             </div>
-            <p className="text-xs text-slate-500 leading-relaxed italic">
+            <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed italic">
               When enabled, standard Cashiers and Staff will automatically face an Access Denied error if attempting to log in outside valid shift schedules.
             </p>
-            <button onClick={handleSaveLockout} className="bg-orange-50 text-orange-600 font-medium px-4 py-2 rounded text-sm hover:bg-orange-100 transition-colors">Apply Lockout Rule</button>
+            <button onClick={handleSaveLockout} className="bg-orange-50 dark:bg-orange-900/30 text-orange-600 dark:text-orange-400 font-medium px-4 py-2 rounded text-sm hover:bg-orange-100 dark:hover:bg-orange-900/50 transition-colors">Apply Lockout Rule</button>
           </div>
         </div>
 
-        <div className="bg-white rounded-lg border shadow-sm p-6 md:col-span-2">
-          <div className="flex items-center gap-3 mb-4 border-b pb-3">
+        <div className="bg-white dark:bg-slate-800 rounded-lg border dark:border-slate-700 shadow-sm p-6 md:col-span-2 transition-colors">
+          <div className="flex items-center gap-3 mb-4 border-b dark:border-slate-700 pb-3">
             <KeyRound className="w-5 h-5 text-red-500" />
-            <h2 className="text-lg font-bold text-slate-800">Staff Credentials Blueprint</h2>
+            <h2 className="text-lg font-bold text-slate-800 dark:text-white">Staff Credentials Blueprint</h2>
           </div>
           <div className="flex flex-col md:flex-row gap-6">
              <div className="flex-1 space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-1">ID Generation Prefix</label>
+                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">ID Generation Prefix</label>
                   <input 
                     type="text" 
-                    className="w-full border rounded px-3 py-2 text-sm uppercase focus:ring-2 outline-none focus:ring-red-500/20" 
+                    className="w-full border dark:border-slate-600 bg-white dark:bg-slate-900 text-slate-900 dark:text-white rounded px-3 py-2 text-sm uppercase focus:ring-2 outline-none focus:ring-red-500/20" 
                     value={blueprint}
                     onChange={(e) => setBlueprint(e.target.value)}
                   />
                 </div>
-                <button onClick={handleSaveBlueprint} className="bg-red-50 text-red-600 font-medium px-4 py-2 rounded text-sm hover:bg-red-100 transition-colors">Sync Update Blueprint</button>
+                <button onClick={handleSaveBlueprint} className="bg-red-50 dark:bg-red-900/30 text-red-600 dark:text-red-400 font-medium px-4 py-2 rounded text-sm hover:bg-red-100 dark:hover:bg-red-900/50 transition-colors">Sync Update Blueprint</button>
              </div>
-             <div className="flex-1 bg-slate-50 p-4 rounded border text-sm text-slate-600">
-                <h3 className="font-bold text-slate-800 mb-2">Notice</h3>
+             <div className="flex-1 bg-slate-50 dark:bg-slate-900 p-4 rounded border dark:border-slate-700 text-sm text-slate-600 dark:text-slate-400">
+                <h3 className="font-bold text-slate-800 dark:text-white mb-2">Notice</h3>
                 Modifying the ID generation prefix overrides the internal Postgres trigger for all future user registrations. Your new string will exactly bypass the legacy HOPE-2026- template.
              </div>
           </div>

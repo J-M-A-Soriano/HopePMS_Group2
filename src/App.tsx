@@ -1,6 +1,7 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { UserRightsProvider, useUserRights } from './context/UserRightsContext';
+import { ThemeProvider } from './context/ThemeProvider';
 import { Layout } from './components/Layout';
 import { Login } from './pages/Login';
 import { Register } from './pages/Register';
@@ -39,27 +40,29 @@ function SystemConfigRoute({ children }: { children: React.ReactNode }) {
 
 export default function App() {
   return (
-    <AuthProvider>
-      <Router>
-        <Routes>
-          <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} />
-          <Route path="/access-denied" element={<AccessDenied />} />
-          
-          <Route path="/" element={
-            <ProtectedRoute>
-              <Layout />
-            </ProtectedRoute>
-          }>
-            <Route index element={<Products />} />
-            <Route path="price-history" element={<PriceHistory />} />
-            <Route path="reports" element={<ReportsRoute><Reports /></ReportsRoute>} />
-            <Route path="users" element={<AdminRoute><Users /></AdminRoute>} />
-            <Route path="archive" element={<AdminRoute><Archive /></AdminRoute>} />
-            <Route path="settings" element={<SystemConfigRoute><Settings /></SystemConfigRoute>} />
-          </Route>
-        </Routes>
-      </Router>
-    </AuthProvider>
+    <ThemeProvider defaultTheme="light" storageKey="hopepms-theme">
+      <AuthProvider>
+        <Router>
+          <Routes>
+            <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
+            <Route path="/access-denied" element={<AccessDenied />} />
+            
+            <Route path="/" element={
+              <ProtectedRoute>
+                <Layout />
+              </ProtectedRoute>
+            }>
+              <Route index element={<Products />} />
+              <Route path="price-history" element={<PriceHistory />} />
+              <Route path="reports" element={<ReportsRoute><Reports /></ReportsRoute>} />
+              <Route path="users" element={<AdminRoute><Users /></AdminRoute>} />
+              <Route path="archive" element={<AdminRoute><Archive /></AdminRoute>} />
+              <Route path="settings" element={<SystemConfigRoute><Settings /></SystemConfigRoute>} />
+            </Route>
+          </Routes>
+        </Router>
+      </AuthProvider>
+    </ThemeProvider>
   );
 }

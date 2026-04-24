@@ -1,5 +1,5 @@
 -- M4 (Rights & Auth Specialist)
--- This trigger automatically creates a user row in public.user
+-- This trigger automatically creates a user row in public."user"
 -- when a new user signs up via Supabase Auth.
 -- The user is created as USER / INACTIVE by default (Login Guard).
 
@@ -19,16 +19,28 @@ RETURNS TRIGGER AS $$
 
     -- Dynamically pull the live ID Generation prefix from the Database config
     -- If the config table is empty or missing, fallback to HOPE-2026-
-    SELECT COALESCE(blueprint_prefix, 'HOPE-2026-') INTO prefix FROM public.system_config WHERE id = 1;
+    -- We use exception handling in case system_config table doesn't exist yet
+    BEGIN
+      SELECT blueprint_prefix INTO prefix FROM public.system_config WHERE id = 1;
+    EXCEPTION WHEN undefined_table THEN
+      prefix := NULL;
+    END;
+
+    IF prefix IS NULL THEN
+      prefix := 'HOPE-2026-';
+    END IF;
 
     -- Generate secure internal ID
     assigned_staff_id := prefix || substr(md5(random()::text), 1, 5);
 
-    INSERT INTO public.user (userid, username, user_type, record_status, staff_id)
+    -- Insert into public."user" (Quoted properly)
+    -- We set BOTH status and record_status to ensure login guards work properly
+    INSERT INTO public."user" (userid, username, user_type, status, record_status, staff_id)
     VALUES (
       NEW.id,
       NEW.email,
       assigned_role,
+      assigned_status,
       assigned_status,
       assigned_staff_id
     );

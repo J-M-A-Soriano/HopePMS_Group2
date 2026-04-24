@@ -88,31 +88,31 @@ export function Archive() {
     <div className="p-8">
       <div className="flex justify-between items-center mb-6">
         <div>
-          <h1 className="text-3xl font-bold text-slate-800 flex items-center gap-3">
+          <h1 className="text-3xl font-bold text-slate-800 dark:text-white flex items-center gap-3">
             <ArchiveRestore className="w-8 h-8 text-primary" /> Archive & Recovery
           </h1>
-          <p className="text-slate-500">Restore suspended accounts and deleted inventory securely.</p>
+          <p className="text-slate-500 dark:text-slate-400">Restore suspended accounts and deleted inventory securely.</p>
         </div>
       </div>
 
       {loading ? (
-          <div className="text-slate-500 text-center py-6">Loading archives...</div>
+          <div className="text-slate-500 dark:text-slate-400 text-center py-6">Loading archives...</div>
       ) : (
         <div className="grid md:grid-cols-2 gap-6">
-          <div className="bg-white rounded-lg border shadow-sm p-4">
-             <h2 className="text-lg font-bold text-slate-800 mb-4 border-b pb-2">Suspended / Terminated Users</h2>
-             {terminatedUsers.length === 0 ? <p className="text-sm text-slate-500">No users found.</p> : terminatedUsers.map(u => (
-               <div key={u.userid} className="flex justify-between items-center bg-slate-50 p-3 mb-2 rounded border border-slate-100">
+          <div className="bg-white dark:bg-slate-800 rounded-lg border dark:border-slate-700 shadow-sm p-4 transition-colors">
+             <h2 className="text-lg font-bold text-slate-800 dark:text-white mb-4 border-b dark:border-slate-700 pb-2">Suspended / Terminated Users</h2>
+             {terminatedUsers.length === 0 ? <p className="text-sm text-slate-500 dark:text-slate-400">No users found.</p> : terminatedUsers.map(u => (
+               <div key={u.userid} className="flex justify-between items-center bg-slate-50 dark:bg-slate-900/50 p-3 mb-2 rounded border border-slate-100 dark:border-slate-700">
                   <div>
-                    <p className="font-semibold">{u.username}</p>
-                    <p className="text-xs text-slate-500 uppercase">{u.record_status}</p>
+                    <p className="font-semibold text-slate-900 dark:text-white">{u.username}</p>
+                    <p className="text-xs text-slate-500 dark:text-slate-400 uppercase">{u.record_status}</p>
                   </div>
                   <div className="flex items-center gap-3">
-                    <button onClick={() => triggerRecovery('USER', u.userid)} className="text-green-600 font-medium text-sm hover:underline">
+                    <button onClick={() => triggerRecovery('USER', u.userid)} className="text-green-600 dark:text-green-400 font-medium text-sm hover:underline">
                       Restore
                     </button>
                     {canHardDelete && (
-                      <button onClick={() => triggerRecovery('USER', u.userid, true)} className="text-red-600 border border-red-200 bg-red-50 px-2 py-1 rounded text-xs font-medium hover:bg-red-100 transition-colors">
+                      <button onClick={() => triggerRecovery('USER', u.userid, true)} className="text-red-600 dark:text-red-400 border border-red-200 dark:border-red-900/50 bg-red-50 dark:bg-red-900/20 px-2 py-1 rounded text-xs font-medium hover:bg-red-100 dark:hover:bg-red-900/40 transition-colors">
                         Purge
                       </button>
                     )}
@@ -121,20 +121,20 @@ export function Archive() {
              ))}
           </div>
 
-          <div className="bg-white rounded-lg border shadow-sm p-4">
-             <h2 className="text-lg font-bold text-slate-800 mb-4 border-b pb-2">Deleted Products</h2>
-             {deletedProducts.length === 0 ? <p className="text-sm text-slate-500">No products found.</p> : deletedProducts.map(p => (
-               <div key={p.prodCode} className="flex justify-between items-center bg-slate-50 p-3 mb-2 rounded border border-slate-100">
+          <div className="bg-white dark:bg-slate-800 rounded-lg border dark:border-slate-700 shadow-sm p-4 transition-colors">
+             <h2 className="text-lg font-bold text-slate-800 dark:text-white mb-4 border-b dark:border-slate-700 pb-2">Deleted Products</h2>
+             {deletedProducts.length === 0 ? <p className="text-sm text-slate-500 dark:text-slate-400">No products found.</p> : deletedProducts.map(p => (
+               <div key={p.prodCode} className="flex justify-between items-center bg-slate-50 dark:bg-slate-900/50 p-3 mb-2 rounded border border-slate-100 dark:border-slate-700">
                   <div>
-                    <p className="font-semibold">{p.description}</p>
-                    <p className="text-xs text-slate-500">Code: {p.prodCode}</p>
+                    <p className="font-semibold text-slate-900 dark:text-white">{p.description}</p>
+                    <p className="text-xs text-slate-500 dark:text-slate-400">Code: {p.prodCode}</p>
                   </div>
                   <div className="flex items-center gap-3">
-                    <button onClick={() => triggerRecovery('PRODUCT', p.prodCode)} className="text-green-600 font-medium text-sm hover:underline">
+                    <button onClick={() => triggerRecovery('PRODUCT', p.prodCode)} className="text-green-600 dark:text-green-400 font-medium text-sm hover:underline">
                       Restore
                     </button>
                     {canHardDelete && (
-                      <button onClick={() => triggerRecovery('PRODUCT', p.prodCode, true)} className="text-red-600 border border-red-200 bg-red-50 px-2 py-1 rounded text-xs font-medium hover:bg-red-100 transition-colors">
+                      <button onClick={() => triggerRecovery('PRODUCT', p.prodCode, true)} className="text-red-600 dark:text-red-400 border border-red-200 dark:border-red-900/50 bg-red-50 dark:bg-red-900/20 px-2 py-1 rounded text-xs font-medium hover:bg-red-100 dark:hover:bg-red-900/40 transition-colors">
                         Purge
                       </button>
                     )}

@@ -81,8 +81,8 @@ export function PriceHistory() {
     <div className="p-8">
       <div className="flex justify-between items-center mb-6">
         <div>
-          <h1 className="text-3xl font-bold text-slate-800">Price History</h1>
-          <p className="text-slate-500">Track changes to product pricing over time.</p>
+          <h1 className="text-3xl font-bold text-slate-800 dark:text-white">Price History</h1>
+          <p className="text-slate-500 dark:text-slate-400">Track changes to product pricing over time.</p>
         </div>
       </div>
 
@@ -90,29 +90,29 @@ export function PriceHistory() {
         <input 
           type="text" 
           placeholder="Filter by Product Code..." 
-          className="border rounded-md px-4 py-2 w-full max-w-sm outline-none focus:ring-2 focus:ring-primary/20"
+          className="border dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white rounded-md px-4 py-2 w-full max-w-sm outline-none focus:ring-2 focus:ring-primary/20"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
         />
       </div>
 
       {loading ? (
-        <div className="text-center py-8">Loading history...</div>
+        <div className="text-center py-8 text-slate-500 dark:text-slate-400">Loading history...</div>
       ) : (
-        <div className="bg-white rounded-lg border shadow-sm overflow-hidden">
+        <div className="bg-white dark:bg-slate-800 rounded-lg border dark:border-slate-700 shadow-sm overflow-hidden transition-colors">
           <table className="w-full text-left text-sm whitespace-nowrap">
-            <thead className="bg-slate-50 border-b">
+            <thead className="bg-slate-50 dark:bg-slate-900 border-b dark:border-slate-700">
               <tr>
-                <th className="px-6 py-4 font-semibold text-slate-600">Effective Date</th>
-                <th className="px-6 py-4 font-semibold text-slate-600 border-r border-slate-200">Product Code</th>
-                <th className="px-6 py-4 font-semibold text-slate-600 text-right w-32 border-r border-slate-200">Unit Price</th>
-                <th className="px-6 py-4 font-semibold text-slate-600 text-center w-24">Actions</th>
+                <th className="px-6 py-4 font-semibold text-slate-600 dark:text-slate-300">Effective Date</th>
+                <th className="px-6 py-4 font-semibold text-slate-600 dark:text-slate-300 border-r border-slate-200 dark:border-slate-700">Product Code</th>
+                <th className="px-6 py-4 font-semibold text-slate-600 dark:text-slate-300 text-right w-32 border-r border-slate-200 dark:border-slate-700">Unit Price</th>
+                <th className="px-6 py-4 font-semibold text-slate-600 dark:text-slate-300 text-center w-24">Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-100">
+            <tbody className="divide-y divide-slate-100 dark:divide-slate-700">
               {filteredHistory.length === 0 ? (
                  <tr>
-                   <td colSpan={4} className="px-6 py-12 text-center text-slate-500">
+                   <td colSpan={4} className="px-6 py-12 text-center text-slate-500 dark:text-slate-400">
                       <div className="flex flex-col items-center justify-center gap-2">
                         <span>No history found.</span>
                       </div>
@@ -120,15 +120,15 @@ export function PriceHistory() {
                  </tr>
               ) : (
                 filteredHistory.map((h, i) => (
-                  <tr key={i} className="hover:bg-slate-50 transition-colors">
-                    <td className="px-6 py-4 text-slate-900">{h.effDate ? new Date(h.effDate).toLocaleDateString() : 'N/A'}</td>
-                    <td className="px-6 py-4 font-medium text-slate-900">{h.prodCode}</td>
-                    <td className="px-6 py-4 text-slate-600 text-right w-32 font-medium">${h.unitPrice ? h.unitPrice.toFixed(2) : '0.00'}</td>
+                  <tr key={i} className="hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors">
+                    <td className="px-6 py-4 text-slate-900 dark:text-slate-300">{h.effDate ? new Date(h.effDate).toLocaleDateString() : 'N/A'}</td>
+                    <td className="px-6 py-4 font-medium text-slate-900 dark:text-white">{h.prodCode}</td>
+                    <td className="px-6 py-4 text-slate-600 dark:text-slate-300 text-right w-32 font-medium">${h.unitPrice ? h.unitPrice.toFixed(2) : '0.00'}</td>
                     <td className="px-6 py-4 text-center w-24">
                       {userRole === 'ADMIN' && (
                          <button 
                            onClick={() => handleEditClick(h)}
-                           className="text-blue-600 hover:text-blue-800 p-2 hover:bg-blue-50 rounded transition-colors"
+                           className="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 p-2 hover:bg-blue-50 dark:hover:bg-blue-900/30 rounded transition-colors"
                          >
                            <Edit2 className="w-4 h-4" />
                          </button>

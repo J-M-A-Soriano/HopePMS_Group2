@@ -3,6 +3,7 @@ import { LogOut, Package, ShieldCheck, History, BarChart3, Settings as SettingsI
 import { supabase } from '@/lib/supabase';
 import { useUserRights } from '@/context/UserRightsContext';
 import { useAuth } from '@/context/AuthContext';
+import { ThemeToggle } from './ThemeToggle';
 
 export function Layout() {
   const { canViewAdminPanel, canViewReports, canViewSystemConfig } = useUserRights();
@@ -19,32 +20,34 @@ export function Layout() {
 
   const getLinkClasses = (path: string) => {
     const isActive = location.pathname === path;
-    return `flex items-center gap-3 rounded-lg px-3 py-2 transition-all ${
-      isActive ? 'bg-primary/10 text-primary font-semibold' : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900 font-medium'
+    return `flex items-center gap-3 rounded-lg px-3 py-2 transition-all duration-300 relative overflow-hidden group ${
+      isActive 
+        ? 'bg-primary/10 text-primary font-semibold shadow-[0_0_10px_rgba(var(--primary-glow))]' 
+        : 'text-muted-foreground hover:bg-muted/50 hover:text-foreground font-medium'
     }`;
   };
 
-  return (
-    <div className="flex min-h-screen w-full bg-slate-50/50">
-      <aside className="w-64 flex-col border-r bg-white hidden md:flex">
-        <div className="flex flex-col border-b">
-          <div className="flex h-14 items-center px-4 lg:h-[60px] lg:px-6">
-            <Link to="/" className="flex items-center gap-2 font-bold text-primary">
-              <Package className="h-6 w-6" />
-              <span className="text-xl tracking-tight">HopePMS</span>
-            </Link>
-          </div>
-          {user && (
-            <div className="px-4 pb-4 lg:px-6">
-              <div className="bg-slate-50 rounded-lg p-3 border border-slate-100 shadow-sm flex flex-col gap-1">
-                <div className="flex flex-row items-center gap-2 text-xs font-semibold text-slate-700 uppercase tracking-wider">
+    return (
+      <div className="flex min-h-screen w-full bg-background transition-colors duration-300 bg-gradient-to-br from-background to-muted/30">
+        <aside className="w-64 flex-col border-r border-border bg-glass backdrop-blur-md hidden md:flex shadow-xl shadow-black/5 z-20">
+          <div className="flex flex-col border-b border-border/50">
+            <div className="flex h-14 items-center px-4 lg:h-[60px] lg:px-6">
+              <Link to="/" className="flex items-center gap-2 font-bold text-primary group">
+                <Package className="h-6 w-6 transition-transform group-hover:scale-110 group-hover:text-blue-500 duration-300" />
+                <span className="text-xl tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-primary to-blue-600 dark:to-blue-400">HopePMS</span>
+              </Link>
+            </div>
+            {user && (
+              <div className="px-4 pb-4 lg:px-6">
+                <div className="bg-card/50 rounded-lg p-3 border border-border/50 shadow-sm flex flex-col gap-1 backdrop-blur-sm transition-all hover:shadow-md hover:border-primary/30">
+                  <div className="flex flex-row items-center gap-2 text-xs font-semibold text-foreground uppercase tracking-wider">
                   <UserCircle className="h-4 w-4 text-primary" />
                   {userRole}
                 </div>
-                <div className="text-xs text-slate-500 font-mono truncate" title={staffId || 'Unknown ID'}>
+                <div className="text-xs text-muted-foreground font-mono truncate" title={staffId || 'Unknown ID'}>
                   ID: {staffId || 'PENDING'}
                 </div>
-                <div className="text-[10px] text-slate-400 truncate mt-1" title={user.email}>
+                <div className="text-[10px] text-muted-foreground/70 truncate mt-1" title={user.email}>
                   {user.email}
                 </div>
               </div>
@@ -81,21 +84,27 @@ export function Layout() {
             )}
             {canViewSystemConfig && (
               <Link to="/settings" className={getLinkClasses('/settings')}>
-                <SettingsIcon className="h-4 w-4 text-slate-600" />
+                <SettingsIcon className="h-4 w-4" />
                 System Config
               </Link>
             )}
           </nav>
         </div>
       </aside>
-      <div className="flex flex-col sm:gap-4 sm:py-4 sm:pl-14 md:pl-0 flex-1">
-        <header className="sticky top-0 z-30 flex h-14 items-center gap-4 border-b bg-white sm:static sm:h-auto sm:border-0 sm:bg-transparent px-4 sm:px-6">
+      <div className="flex flex-col sm:gap-4 sm:py-4 sm:pl-14 md:pl-0 flex-1 relative z-10">
+        <header className="sticky top-0 z-30 flex h-14 items-center gap-4 border-b border-border/50 bg-glass backdrop-blur-md sm:static sm:h-auto sm:border-0 sm:bg-transparent px-4 sm:px-6 sm:pb-2">
           <div className="flex-1"></div>
-          <button onClick={handleLogout} className="flex items-center gap-2 bg-white border shadow-sm px-4 py-2 rounded-md hover:bg-slate-50 transition-colors text-sm font-medium">
-             <LogOut className="h-4 w-4" /> Logout
-          </button>
+          <div className="flex items-center gap-3">
+            <ThemeToggle />
+            <button 
+              onClick={handleLogout} 
+              className="flex items-center gap-2 bg-card border border-border shadow-sm px-4 py-2 rounded-md hover:bg-muted transition-colors text-sm font-medium text-foreground hover:shadow-md"
+            >
+               <LogOut className="h-4 w-4" /> Logout
+            </button>
+          </div>
         </header>
-        <main className="flex-1">
+        <main className="flex-1 px-4 sm:px-6">
           <Outlet />
         </main>
       </div>

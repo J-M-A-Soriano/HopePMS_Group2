@@ -10,6 +10,7 @@ type UserRights = {
   canHardDelete: boolean;
   canViewSystemConfig: boolean;
   canViewAdminLogs: boolean;
+  canChangeRoles: boolean;
 };
 
 const defaultRights: UserRights = {
@@ -21,6 +22,7 @@ const defaultRights: UserRights = {
   canHardDelete: false,
   canViewSystemConfig: false,
   canViewAdminLogs: false,
+  canChangeRoles: false,
 };
 
 const UserRightsContext = createContext<UserRights>(defaultRights);
@@ -41,6 +43,7 @@ export const UserRightsProvider = ({ children }: { children: React.ReactNode }) 
       canHardDelete: role === 'SUPERADMIN',
       canViewSystemConfig: role === 'SUPERADMIN',
       canViewAdminLogs: role === 'SUPERADMIN',
+      canChangeRoles: role === 'SUPERADMIN',
     };
   }, [userRole]);
 
