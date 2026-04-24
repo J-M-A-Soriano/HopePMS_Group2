@@ -1,6 +1,6 @@
 [build]
   publish = "dist"
-  command = "npm install && npm run build"
+  command = "npm install && npm rebuild lightningcss --update-binary || true && npm run build"
 
 [[redirects]]
   from = "/*"
