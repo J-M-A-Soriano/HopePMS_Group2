@@ -25,7 +25,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   useEffect(() => {
     let mounted = true;
 
-    const fetchUserRole = async (userId: string) => {
+    const fetchUserRole = async (userId: string, retries: number = 3) => {
       try {
         const { data, error } = await supabase
           .from('user')
