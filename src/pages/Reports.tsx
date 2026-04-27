@@ -83,8 +83,8 @@ export function Reports() {
   }
 
   return (
-    <div className="p-8 space-y-6">
-      <div className="flex justify-between items-center mb-6">
+    <div className="p-4 md:p-8 space-y-6">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
         <div>
           <h1 className="text-3xl font-bold text-slate-800 dark:text-white flex items-center gap-3">
             <BarChart3 className="w-8 h-8 text-primary" /> Analytics & Reports
@@ -145,11 +145,11 @@ export function Reports() {
         <div className="bg-white dark:bg-slate-800 rounded-xl border dark:border-slate-700 shadow-sm p-6 lg:col-span-2 transition-colors">
           <h2 className="text-lg font-semibold mb-6 text-slate-800 dark:text-white">Top 10 Selling Products</h2>
           {loading ? (
-             <div className="h-[300px] flex items-center justify-center text-slate-400">Loading chart data...</div>
+             <div className="h-[380px] flex items-center justify-center text-slate-400">Loading chart data...</div>
           ) : top10.length === 0 ? (
-             <div className="h-[300px] flex items-center justify-center text-slate-400">No sales data available.</div>
+             <div className="h-[380px] flex items-center justify-center text-slate-400">No sales data available.</div>
           ) : (
-             <div className="h-[300px]">
+             <div className="h-[380px]">
                <ResponsiveContainer width="100%" height="100%">
                  <BarChart data={top10} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" opacity={0.5} />
@@ -174,11 +174,11 @@ export function Reports() {
         <div className="bg-white dark:bg-slate-800 rounded-xl border dark:border-slate-700 shadow-sm p-6 transition-colors">
           <h2 className="text-lg font-semibold mb-6 text-slate-800 dark:text-white">Volume Distribution</h2>
           {loading ? (
-             <div className="h-[300px] flex items-center justify-center text-slate-400">Loading chart data...</div>
+             <div className="h-[380px] flex items-center justify-center text-slate-400">Loading chart data...</div>
           ) : pieData.length === 0 ? (
-             <div className="h-[300px] flex items-center justify-center text-slate-400">No sales data available.</div>
+             <div className="h-[380px] flex items-center justify-center text-slate-400">No sales data available.</div>
           ) : (
-             <div className="h-[300px]">
+             <div className="h-[380px] pb-4">
                <ResponsiveContainer width="100%" height="100%">
                  <PieChart>
                    <Pie
@@ -197,7 +197,7 @@ export function Reports() {
                    <RechartsTooltip 
                      contentStyle={{ borderRadius: '8px', border: '1px solid hsl(var(--border))', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)', backgroundColor: 'hsl(var(--card))', color: 'hsl(var(--card-foreground))' }}
                    />
-                   <Legend verticalAlign="bottom" height={36} iconType="circle" wrapperStyle={{ fontSize: '12px', color: '#94a3b8' }}/>
+                   <Legend verticalAlign="bottom" height={80} iconType="circle" wrapperStyle={{ fontSize: '12px', color: '#94a3b8', paddingTop: '10px' }}/>
                  </PieChart>
                </ResponsiveContainer>
              </div>

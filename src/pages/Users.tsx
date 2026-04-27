@@ -21,7 +21,7 @@ export function Users() {
   const fetchUsers = async () => {
     setLoading(true);
     try {
-      const { data, error } = await supabase.from('user').select('*').order('created_at', { ascending: false });
+      const { data, error } = await supabase.from('user').select('*').order('username', { ascending: true });
       if (!error && data) setUsers(data);
     } catch(e) { console.error(e); }
     setLoading(false);
@@ -105,8 +105,8 @@ export function Users() {
   };
 
   return (
-    <div className="p-8">
-      <div className="flex justify-between items-center mb-6">
+    <div className="p-4 md:p-8">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
         <div>
           <h1 className="text-3xl font-bold text-slate-800 dark:text-white flex items-center gap-3">
             <ShieldCheck className="w-8 h-8 text-primary" /> Admin Operations
@@ -120,7 +120,7 @@ export function Users() {
          <button onClick={() => setActiveTab('audit')} className={`pb-2 px-4 font-medium text-sm transition-colors ${activeTab === 'audit' ? 'border-b-2 border-primary text-primary' : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200'}`}>Activity Feed</button>
       </div>
 
-      <div className="bg-white dark:bg-slate-800 rounded-lg border dark:border-slate-700 shadow-sm overflow-hidden transition-colors">
+      <div className="bg-white dark:bg-slate-800 rounded-lg border dark:border-slate-700 shadow-sm overflow-x-auto w-full transition-colors">
         {loading && activeTab === 'staff' ? (
           <div className="p-6 text-slate-500 dark:text-slate-400 text-center">Loading users...</div>
         ) : activeTab === 'staff' ? (

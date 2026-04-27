@@ -3,7 +3,7 @@ import { fetchPriceHistory } from '@/lib/api/products';
 import type { PriceHistory as PH } from '@/lib/api/products';
 import { ActionConfirmModal } from '@/components/ActionConfirmModal';
 import { useAuth } from '@/context/AuthContext';
-import { Edit2 } from 'lucide-react';
+import { Edit2, AlertCircle, CheckCircle } from 'lucide-react';
 import { logAction } from '@/lib/api/audit';
 
 export function PriceHistory() {
@@ -12,6 +12,13 @@ export function PriceHistory() {
   const [search, setSearch] = useState('');
   const [modalOpen, setModalOpen] = useState(false);
   const [editingPrice, setEditingPrice] = useState<{ prodCode: string, unitPrice: number, effDate: string } | null>(null);
+  
+  const [feedback, setFeedback] = useState<{message: string, type: 'error' | 'success'} | null>(null);
+
+  const showFeedback = (message: string, type: 'error' | 'success' = 'success') => {
+    setFeedback({ message, type });
+    setTimeout(() => setFeedback(null), 4000);
+  };
   
   const { user, staffId, userRole } = useAuth();
 
@@ -69,8 +76,10 @@ export function PriceHistory() {
            loadHistory();
         } else {
            console.error("Update failed:", error);
-           alert("Update failed API error: " + error.message);
+           showFeedback("Update failed API error: " + error.message, 'error');
         }
+      } else if (newPrice) {
+         showFeedback("Price successfully updated.", 'success');
       }
     } catch(e) { console.error(e); }
     setModalOpen(false);
@@ -78,13 +87,20 @@ export function PriceHistory() {
   };
 
   return (
-    <div className="p-8">
-      <div className="flex justify-between items-center mb-6">
+    <div className="p-4 md:p-8">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
         <div>
           <h1 className="text-3xl font-bold text-slate-800 dark:text-white">Price History</h1>
           <p className="text-slate-500 dark:text-slate-400">Track changes to product pricing over time.</p>
         </div>
       </div>
+
+      {feedback && (
+         <div className={`mb-6 p-4 rounded-md text-sm font-medium flex items-center gap-3 animate-in fade-in slide-in-from-top-4 ${feedback.type === 'error' ? 'bg-red-50 border border-red-200 text-red-800' : 'bg-emerald-50 border border-emerald-200 text-emerald-800'}`}>
+            {feedback.type === 'error' ? <AlertCircle className="h-5 w-5 text-red-600 shrink-0" /> : <CheckCircle className="h-5 w-5 text-emerald-600 shrink-0" />}
+            {feedback.message}
+         </div>
+      )}
 
       <div className="mb-6">
         <input 
@@ -99,7 +115,7 @@ export function PriceHistory() {
       {loading ? (
         <div className="text-center py-8 text-slate-500 dark:text-slate-400">Loading history...</div>
       ) : (
-        <div className="bg-white dark:bg-slate-800 rounded-lg border dark:border-slate-700 shadow-sm overflow-hidden transition-colors">
+        <div className="bg-white dark:bg-slate-800 rounded-lg border dark:border-slate-700 shadow-sm overflow-x-auto w-full transition-colors">
           <table className="w-full text-left text-sm whitespace-nowrap">
             <thead className="bg-slate-50 dark:bg-slate-900 border-b dark:border-slate-700">
               <tr>
@@ -123,7 +139,7 @@ export function PriceHistory() {
                   <tr key={i} className="hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors">
                     <td className="px-6 py-4 text-slate-900 dark:text-slate-300">{h.effDate ? new Date(h.effDate).toLocaleDateString() : 'N/A'}</td>
                     <td className="px-6 py-4 font-medium text-slate-900 dark:text-white">{h.prodCode}</td>
-                    <td className="px-6 py-4 text-slate-600 dark:text-slate-300 text-right w-32 font-medium">${h.unitPrice ? h.unitPrice.toFixed(2) : '0.00'}</td>
+                    <td className="px-6 py-4 text-slate-600 dark:text-slate-300 text-right w-32 font-medium">${h.unitPrice ? h.unitPrice.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '0.00'}</td>
                     <td className="px-6 py-4 text-center w-24">
                       {userRole === 'ADMIN' && (
                          <button 

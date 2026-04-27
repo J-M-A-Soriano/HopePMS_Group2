@@ -17,11 +17,10 @@ export const fetchProducts = async () => {
     .from('product')
     .select('*')
     .eq('record_status', 'ACTIVE')
-    .order('created_at', { ascending: false });
+    .order('prodcode', { ascending: true });
 
   if (error) {
     console.error('CRITICAL Error fetching products:', error);
-    alert(`Supabase Error: ${error.message}`);
     return [];
   }
 
@@ -129,7 +128,7 @@ export const softDeleteProduct = async (prodCode: string) => {
   const { error } = await supabase
     .from('product')
     .update({ record_status: 'INACTIVE', updated_at: new Date().toISOString() })
-    .eq('prodCode', prodCode);
+    .eq('prodcode', prodCode);
 
   if (error) throw error;
   return true;
@@ -147,7 +146,7 @@ export const fetchPriceHistory = async (prodCode: string) => {
   const { data, error } = await supabase
     .from('pricehist')
     .select('*')
-    .eq('prodCode', prodCode)
+    .eq('prodcode', prodCode)
     .order('effDate', { ascending: false });
 
   if (error) throw error;

@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import { PackagePlus, Edit, Trash2, X } from 'lucide-react';
+import { PackagePlus, Edit, Trash2, X, AlertCircle, CheckCircle } from 'lucide-react';
 import { fetchProducts, softDeleteProduct, addProduct, updateProduct } from '@/lib/api/products';
 import type { Product } from '@/lib/api/products';
 import { useUserRights } from '@/context/UserRightsContext';
 import { useAuth } from '@/context/AuthContext';
+import { ActionConfirmModal } from '@/components/ActionConfirmModal';
 
 export function Products() {
   const [products, setProducts] = useState<Product[]>([]);
@@ -14,6 +15,15 @@ export function Products() {
   const [showModal, setShowModal] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState({ prodCode: '', description: '', unit: 'ea', initialPrice: '0', oldPrice: 0 });
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [productToDelete, setProductToDelete] = useState<string | null>(null);
+
+  const [feedback, setFeedback] = useState<{message: string, type: 'error' | 'success'} | null>(null);
+
+  const showFeedback = (message: string, type: 'error' | 'success' = 'success') => {
+    setFeedback({ message, type });
+    setTimeout(() => setFeedback(null), 4000);
+  };
 
   const loadProducts = async () => {
     let timeoutId: number;
@@ -34,15 +44,22 @@ export function Products() {
     loadProducts();
   }, []);
 
-  const handleDelete = async (prodCode: string) => {
-    if (!confirm('Are you sure you want to delete this product?')) return;
+  const triggerDelete = (prodCode: string) => {
+    setProductToDelete(prodCode);
+    setDeleteModalOpen(true);
+  };
+
+  const handleDeleteConfirmed = async () => {
+    if (!productToDelete) return;
     try {
-      await softDeleteProduct(prodCode);
+      await softDeleteProduct(productToDelete);
       await loadProducts();
     } catch (e) {
       console.error(e);
-      alert('Error deleting product');
+      showFeedback('Error deleting product', 'error');
     }
+    setDeleteModalOpen(false);
+    setProductToDelete(null);
   };
 
   const handleOpenAdd = () => {
@@ -84,9 +101,10 @@ export function Products() {
         );
       }
       setShowModal(false);
+      showFeedback(isEditing ? 'Product successfully updated.' : 'New product successfully created.', 'success');
       await loadProducts();
     } catch (err: any) {
-      alert("Error saving: " + err.message);
+      showFeedback("Error saving: " + err.message, 'error');
     }
   };
 
@@ -95,8 +113,8 @@ export function Products() {
   }
 
   return (
-    <div className="p-8 relative">
-      <div className="flex justify-between items-center mb-6">
+    <div className="p-4 md:p-8 relative">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
         <div>
           <h1 className="text-3xl font-bold text-slate-800 dark:text-white">Products</h1>
           <p className="text-slate-500 dark:text-slate-400">Manage your product inventory and descriptions.</p>
@@ -109,7 +127,14 @@ export function Products() {
         )}
       </div>
 
-      <div className="bg-white dark:bg-slate-800 rounded-lg border dark:border-slate-700 shadow-sm overflow-hidden transition-colors">
+      {feedback && (
+         <div className={`mb-6 p-4 rounded-md text-sm font-medium flex items-center gap-3 animate-in fade-in slide-in-from-top-4 ${feedback.type === 'error' ? 'bg-red-50 border border-red-200 text-red-800' : 'bg-emerald-50 border border-emerald-200 text-emerald-800'}`}>
+            {feedback.type === 'error' ? <AlertCircle className="h-5 w-5 text-red-600 shrink-0" /> : <CheckCircle className="h-5 w-5 text-emerald-600 shrink-0" />}
+            {feedback.message}
+         </div>
+      )}
+
+      <div className="bg-white dark:bg-slate-800 rounded-lg border dark:border-slate-700 shadow-sm overflow-x-auto w-full transition-colors">
         <table className="w-full text-left text-sm whitespace-nowrap">
           <thead className="bg-slate-50 dark:bg-slate-900 border-b dark:border-slate-700">
             <tr>
@@ -135,7 +160,7 @@ export function Products() {
                       {p.unit}
                     </span>
                   </td>
-                  <td className="px-6 py-4 font-semibold text-emerald-600 dark:text-emerald-400">${p.unitPrice?.toFixed(2)}</td>
+                  <td className="px-6 py-4 font-semibold text-emerald-600 dark:text-emerald-400">${p.unitPrice?.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
                   {(canEditProduct || canDeleteProduct) && (
                     <td className="px-6 py-4 text-right">
                       <div className="flex justify-end gap-2">
@@ -146,7 +171,7 @@ export function Products() {
                         )}
                         {canDeleteProduct && (
                           <button 
-                            onClick={() => handleDelete(p.prodCode)}
+                            onClick={() => triggerDelete(p.prodCode)}
                             className="text-red-600 dark:text-red-400 hover:text-red-900 dark:hover:text-red-300 p-2 hover:bg-red-50 dark:hover:bg-red-900/30 rounded transition-colors" title="Delete"
                           >
                             <Trash2 className="w-4 h-4" />
@@ -164,7 +189,7 @@ export function Products() {
 
       {showModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
-           <div className="bg-white dark:bg-slate-800 rounded-lg shadow-xl border dark:border-slate-700 w-full max-w-md animate-in fade-in zoom-in-95 duration-200">
+           <div className="bg-white dark:bg-slate-800 rounded-lg shadow-xl border dark:border-slate-700 w-[95vw] sm:w-full max-w-md animate-in fade-in zoom-in-95 duration-200">
               <div className="flex justify-between items-center p-4 border-b dark:border-slate-700">
                  <h2 className="text-lg font-bold text-slate-800 dark:text-white">{isEditing ? 'Edit Product' : 'Add New Product'}</h2>
                  <button type="button" onClick={() => setShowModal(false)} className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-300"><X className="w-5 h-5" /></button>
@@ -191,7 +216,7 @@ export function Products() {
                       onChange={e => setFormData({...formData, description: e.target.value})}
                     />
                  </div>
-                 <div className="grid grid-cols-2 gap-4">
+                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                      <div>
                         <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Unit Type</label>
                         <input 
@@ -228,6 +253,16 @@ export function Products() {
            </div>
         </div>
       )}
+
+      <ActionConfirmModal 
+        isOpen={deleteModalOpen} 
+        onClose={() => {
+          setDeleteModalOpen(false);
+          setProductToDelete(null);
+        }} 
+        onVerified={handleDeleteConfirmed} 
+        actionTitle={productToDelete ? `Delete Product: ${productToDelete}` : ''}
+      />
     </div>
   );
 }

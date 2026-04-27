@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Settings as SettingsIcon, Store, KeyRound, Clock, CheckCircle } from 'lucide-react';
+import { Settings as SettingsIcon, Store, KeyRound, Clock, CheckCircle, AlertCircle } from 'lucide-react';
 import { useUserRights } from '@/context/UserRightsContext';
 import { Navigate } from 'react-router-dom';
 import { fetchSystemConfig, updateSystemConfig } from '@/lib/api/config';
@@ -7,13 +7,13 @@ import { fetchSystemConfig, updateSystemConfig } from '@/lib/api/config';
 export function Settings() {
   const { canViewSystemConfig } = useUserRights();
 
-  const [bizName, setBizName] = useState('Hope Pharmacy & Supplies');
+  const [bizName, setBizName] = useState('Hope Tech');
   const [bizTin, setBizTin] = useState('000-111-222-000');
   const [lockout, setLockout] = useState('Disabled (24/7 Access)');
   const [blueprint, setBlueprint] = useState('HOPE-2026-');
 
   // UI Feedback Status state
-  const [alert, setAlert] = useState<{message: string, type: 'success' | 'info'} | null>(null);
+  const [alert, setAlert] = useState<{message: string, type: 'success' | 'info' | 'error'} | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -34,9 +34,9 @@ export function Settings() {
     return <Navigate to="/" />;
   }
 
-  const showFeedback = (message: string) => {
-    setAlert({ message, type: 'success' });
-    setTimeout(() => setAlert(null), 3000);
+  const showFeedback = (message: string, type: 'success' | 'error' = 'success') => {
+    setAlert({ message, type });
+    setTimeout(() => setAlert(null), 4000);
   };
 
   const handleSaveIdentity = async () => {
@@ -44,7 +44,7 @@ export function Settings() {
       await updateSystemConfig({ business_name: bizName, tax_id: bizTin });
       showFeedback('Business Identity Variables perfectly synced to database.');
     } catch(e: any) {
-      window.alert("Error: Database syncing failed. Are you Superadmin? " + e.message);
+      showFeedback("Error: Database syncing failed. Are you Superadmin? " + e.message, 'error');
     }
   };
 
@@ -53,7 +53,7 @@ export function Settings() {
       await updateSystemConfig({ shift_lockout: lockout });
       showFeedback(`Operational rule enforced: ${lockout}`);
     } catch(e: any) {
-      window.alert("Error: Database syncing failed. " + e.message);
+      showFeedback("Error: Database syncing failed. " + e.message, 'error');
     }
   };
 
@@ -62,15 +62,15 @@ export function Settings() {
       await updateSystemConfig({ blueprint_prefix: blueprint });
       showFeedback('Database generator prefix has been permanently shifted.');
     } catch(e: any) {
-      window.alert("Error: Database syncing failed. " + e.message);
+      showFeedback("Error: Database syncing failed. " + e.message, 'error');
     }
   };
 
   if (loading) return <div className="p-8">Syncing Superadmin dashboard with database...</div>;
 
   return (
-    <div className="p-8 pb-16 relative">
-      <div className="flex justify-between items-center mb-6">
+    <div className="p-4 md:p-8 pb-16 relative">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
         <div>
           <h1 className="text-3xl font-bold text-slate-800 dark:text-white flex items-center gap-3">
             <SettingsIcon className="w-8 h-8 text-primary" /> System Configuration
@@ -80,13 +80,13 @@ export function Settings() {
       </div>
 
       {alert && (
-         <div className="mb-6 bg-emerald-50 border border-emerald-200 text-emerald-800 p-4 rounded-md text-sm font-medium flex items-center gap-3 animate-in fade-in slide-in-from-top-4">
-            <CheckCircle className="h-5 w-5 text-emerald-600 shrink-0" />
+         <div className={`mb-6 p-4 rounded-md text-sm font-medium flex items-center gap-3 animate-in fade-in slide-in-from-top-4 ${alert.type === 'error' ? 'bg-red-50 border border-red-200 text-red-800' : 'bg-emerald-50 border border-emerald-200 text-emerald-800'}`}>
+            {alert.type === 'error' ? <AlertCircle className="h-5 w-5 text-red-600 shrink-0" /> : <CheckCircle className="h-5 w-5 text-emerald-600 shrink-0" />}
             {alert.message}
          </div>
       )}
 
-      <div className="grid md:grid-cols-2 gap-6 max-w-4xl">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl">
         <div className="bg-white dark:bg-slate-800 rounded-lg border dark:border-slate-700 shadow-sm p-6 transition-colors">
           <div className="flex items-center gap-3 mb-4 border-b dark:border-slate-700 pb-3">
             <Store className="w-5 h-5 text-indigo-500" />

@@ -41,8 +41,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
             data.record_status === 'TERMINATED' ||
             data.record_status === 'INACTIVE'
           ) {
-            supabase.auth.signOut().catch(() => { });
+            await supabase.auth.signOut().catch(() => { });
             localStorage.clear();
+            sessionStorage.clear();
             window.location.href =
               data.record_status === 'INACTIVE'
                 ? '/login?error=account_pending'
@@ -135,6 +136,46 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       subscription.unsubscribe();
     };
   }, []);
+
+  // Real-time listener for immediate logout upon suspension/termination
+  useEffect(() => {
+    if (!user) return;
+
+    const userSubscription = supabase
+      .channel(`public:user:${user.id}`)
+      .on(
+        'postgres_changes',
+        { event: 'UPDATE', schema: 'public', table: 'user', filter: `userid=eq.${user.id}` },
+        (payload: any) => {
+          const updatedUser = payload.new;
+          if (
+            updatedUser.record_status === 'SUSPENDED' ||
+            updatedUser.record_status === 'TERMINATED' ||
+            updatedUser.record_status === 'INACTIVE'
+          ) {
+            supabase.auth.signOut().then(() => {
+              localStorage.clear();
+              sessionStorage.clear();
+              window.location.href =
+                updatedUser.record_status === 'INACTIVE'
+                  ? '/login?error=account_pending'
+                  : '/login?error=account_locked';
+            }).catch(() => {
+              localStorage.clear();
+              sessionStorage.clear();
+              window.location.href = '/login?error=account_locked';
+            });
+          } else if (updatedUser.user_type) {
+            setUserRole(updatedUser.user_type);
+          }
+        }
+      )
+      .subscribe();
+
+    return () => {
+      userSubscription.unsubscribe();
+    };
+  }, [user]);
 
   return (
     <AuthContext.Provider value={{ user, session, userRole, staffId, loading }}>

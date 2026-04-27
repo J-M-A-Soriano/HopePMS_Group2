@@ -20,8 +20,8 @@ export function Archive() {
   const fetchArchives = async () => {
     setLoading(true);
     try {
-      const { data: usersData } = await supabase.from('user').select('*').in('record_status', ['TERMINATED', 'SUSPENDED']);
-      const { data: productsData } = await supabase.from('product').select('*').in('record_status', ['INACTIVE', 'DELETED']);
+      const { data: usersData } = await supabase.from('user').select('*').in('record_status', ['TERMINATED', 'SUSPENDED']).order('username', { ascending: true });
+      const { data: productsData } = await supabase.from('product').select('*').in('record_status', ['INACTIVE', 'DELETED']).order('prodcode', { ascending: true });
       
       if (usersData) setTerminatedUsers(usersData);
       if (productsData) {
@@ -48,7 +48,7 @@ export function Archive() {
            await supabase.from('user').delete().eq('userid', pendingAction.id);
            await supabase.from('audit_logs').insert([{ performed_by: currentUser.id, action_type: `USER_PURGED`, target_id: pendingAction.id, staff_id_used: staffId }]);
          } else {
-           await supabase.from('product').delete().eq('prodCode', pendingAction.id);
+           await supabase.from('product').delete().eq('prodcode', pendingAction.id);
            await supabase.from('audit_logs').insert([{ performed_by: currentUser.id, action_type: `PRODUCT_PURGED`, target_id: pendingAction.id, staff_id_used: staffId }]);
          }
       } else {
@@ -64,7 +64,7 @@ export function Archive() {
             }]);
           }
         } else {
-          const { error } = await supabase.from('product').update({ record_status: 'ACTIVE' }).eq('prodCode', pendingAction.id);
+          const { error } = await supabase.from('product').update({ record_status: 'ACTIVE' }).eq('prodcode', pendingAction.id);
           if (!error) {
              await supabase.from('audit_logs').insert([{
               performed_by: currentUser.id,
@@ -85,8 +85,8 @@ export function Archive() {
   };
 
   return (
-    <div className="p-8">
-      <div className="flex justify-between items-center mb-6">
+    <div className="p-4 md:p-8">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
         <div>
           <h1 className="text-3xl font-bold text-slate-800 dark:text-white flex items-center gap-3">
             <ArchiveRestore className="w-8 h-8 text-primary" /> Archive & Recovery
@@ -98,7 +98,7 @@ export function Archive() {
       {loading ? (
           <div className="text-slate-500 dark:text-slate-400 text-center py-6">Loading archives...</div>
       ) : (
-        <div className="grid md:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <div className="bg-white dark:bg-slate-800 rounded-lg border dark:border-slate-700 shadow-sm p-4 transition-colors">
              <h2 className="text-lg font-bold text-slate-800 dark:text-white mb-4 border-b dark:border-slate-700 pb-2">Suspended / Terminated Users</h2>
              {terminatedUsers.length === 0 ? <p className="text-sm text-slate-500 dark:text-slate-400">No users found.</p> : terminatedUsers.map(u => (
@@ -150,6 +150,7 @@ export function Archive() {
         onClose={() => setModalOpen(false)} 
         onVerified={handleApplyAction} 
         actionTitle={pendingAction?.isPurge ? "PERMANENT DATABASE PURGE" : "Irreversible Vault Extraction"}
+        requireIdVerification={pendingAction?.isPurge}
       />
     </div>
   );

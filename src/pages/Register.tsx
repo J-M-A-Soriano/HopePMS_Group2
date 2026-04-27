@@ -18,7 +18,16 @@ export function Register() {
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
-    const { data, error } = await supabase.auth.signUp({ email, password });
+    const { data, error } = await supabase.auth.signUp({ 
+      email, 
+      password,
+      options: {
+        data: {
+          username: email.split('@')[0],
+          full_name: email.split('@')[0],
+        }
+      }
+    });
     
     // Supabase returns a 'fake success' for existing emails to prevent enumeration.
     // We can detect this if the identities array is empty.

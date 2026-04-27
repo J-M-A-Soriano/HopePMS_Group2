@@ -24,10 +24,15 @@ export function Login() {
       setUrlError(params.get('error'));
       // Clean the URL silently so refreshes don't retrigger it
       window.history.replaceState({}, document.title, "/login");
+      
+      // Force clear session just in case it persisted in sessionStorage
+      supabase.auth.signOut().catch(() => {});
+      localStorage.clear();
+      sessionStorage.clear();
     }
   }, []);
 
-  if (user && !window.location.search.includes('force=true')) {
+  if (user && !window.location.search.includes('force=true') && !window.location.search.includes('error=') && !urlError) {
     return <Navigate to="/" />;
   }
 
