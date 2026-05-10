@@ -1,13 +1,22 @@
 import React, { useState, useEffect } from 'react';
 import { Outlet, Link, useLocation } from 'react-router-dom';
-import { LogOut, Package, ShieldCheck, History, BarChart3, Settings as SettingsIcon, UserCircle, Menu, X, Activity, ShieldAlert, Database } from 'lucide-react';
+import { LogOut, Package, ShieldCheck, History, BarChart3, Settings as SettingsIcon, UserCircle, Menu, X, Activity, ShieldAlert, Database, LayoutDashboard, FileQuestion, Layers, Archive as ArchiveIcon, Bell, Lock, Users } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { useUserRights } from '@/context/UserRightsContext';
 import { useAuth } from '@/context/AuthContext';
 import { ThemeToggle } from './ThemeToggle';
 
 export function Layout() {
-  const { canViewAdminPanel, canViewReports, canViewSystemConfig } = useUserRights();
+  const { 
+    isSuperadmin,
+    canViewAdminPanel,
+    canManageInventory,
+    canViewReports,
+    canManageUsers,
+    canViewVault,
+    canViewSystemConfig,
+    canViewAdminLogs
+  } = useUserRights();
   const { user, userRole, staffId } = useAuth();
   const location = useLocation();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -65,51 +74,104 @@ export function Layout() {
       <div className="flex-1 overflow-auto py-2">
         <nav className="grid items-start px-2 text-sm lg:px-4 space-y-1">
           <Link to="/" className={getLinkClasses('/')}>
+            <LayoutDashboard className="h-4 w-4" />
+            Dashboard
+          </Link>
+          <Link to="/products" className={getLinkClasses('/products')}>
             <Package className="h-4 w-4" />
             Products
           </Link>
+
+          {canManageInventory && (
+            <Link to="/inventory" className={getLinkClasses('/inventory')}>
+              <Layers className="h-4 w-4" />
+              Inventory
+            </Link>
+          )}
+
           <Link to="/price-history" className={getLinkClasses('/price-history')}>
             <History className="h-4 w-4" />
             Price History
           </Link>
+
+          {/* User-only link */}
+          {!canViewAdminPanel && (
+            <Link to="/stock-requests" className={getLinkClasses('/stock-requests')}>
+              <FileQuestion className="h-4 w-4" />
+              Stock Requests
+            </Link>
+          )}
+
           {canViewReports && (
             <Link to="/reports" className={getLinkClasses('/reports')}>
               <BarChart3 className="h-4 w-4" />
               Reports
             </Link>
           )}
-          {canViewAdminPanel && (
-            <>
-              <Link to="/users" className={getLinkClasses('/users')}>
-                <ShieldCheck className="h-4 w-4" />
-                Manage Users
-              </Link>
-              <Link to="/archive" className={getLinkClasses('/archive')}>
-                <ShieldCheck className="h-4 w-4 text-red-500" />
-                Vault/Archive
-              </Link>
-            </>
+
+          {canManageUsers && (
+            <Link to="/users" className={getLinkClasses('/users')}>
+              <Users className="h-4 w-4" />
+              Manage Users
+            </Link>
           )}
+
+          {isSuperadmin && (
+            <Link to="/role-permissions" className={getLinkClasses('/role-permissions')}>
+              <ShieldAlert className="h-4 w-4 text-rose-500" />
+              Roles & Permissions
+            </Link>
+          )}
+
+          {canViewAdminLogs && (
+            <Link to="/audit-logs" className={getLinkClasses('/audit-logs')}>
+              <Activity className="h-4 w-4 text-indigo-500" />
+              Audit Logs
+            </Link>
+          )}
+
+          {canViewVault && (
+            <Link to="/archive" className={getLinkClasses('/archive')}>
+              <ArchiveIcon className="h-4 w-4 text-red-500" />
+              Vault/Archive
+            </Link>
+          )}
+
+          {/* User-only link */}
+          {!canViewAdminPanel && (
+            <Link to="/activity" className={getLinkClasses('/activity')}>
+              <Activity className="h-4 w-4 text-fuchsia-500" />
+              My Activity
+            </Link>
+          )}
+
+          {(canViewAdminPanel || isSuperadmin) && (
+            <Link to="/notifications" className={getLinkClasses('/notifications')}>
+              <Bell className="h-4 w-4 text-sky-500" />
+              Notifications
+            </Link>
+          )}
+
           {canViewSystemConfig && (
+            <Link to="/settings" className={getLinkClasses('/settings')}>
+              <SettingsIcon className="h-4 w-4 text-slate-500" />
+              System Config
+            </Link>
+          )}
+
+          {isSuperadmin && (
             <>
-              <Link to="/settings" className={getLinkClasses('/settings')}>
-                <SettingsIcon className="h-4 w-4" />
-                System Config
-              </Link>
-              <Link to="/audit-logs" className={getLinkClasses('/audit-logs')}>
-                <Activity className="h-4 w-4 text-indigo-500" />
-                Audit Logs
-              </Link>
-              <Link to="/role-permissions" className={getLinkClasses('/role-permissions')}>
-                <ShieldAlert className="h-4 w-4 text-rose-500" />
-                Role Permissions
-              </Link>
               <Link to="/backup-restore" className={getLinkClasses('/backup-restore')}>
                 <Database className="h-4 w-4 text-teal-500" />
                 Backup & Restore
               </Link>
+              <Link to="/security-center" className={getLinkClasses('/security-center')}>
+                <Lock className="h-4 w-4 text-rose-500" />
+                Security Center
+              </Link>
             </>
           )}
+
           <div className="my-2 border-t border-border/50"></div>
           <Link to="/profile" className={getLinkClasses('/profile')}>
              <UserCircle className="h-4 w-4 text-indigo-500" />

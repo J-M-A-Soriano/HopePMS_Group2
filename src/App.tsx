@@ -16,6 +16,12 @@ import { AuditLogs } from './pages/AuditLogs';
 import { RolePermissions } from './pages/RolePermissions';
 import { BackupRestore } from './pages/BackupRestore';
 import { Profile } from './pages/Profile';
+import { Dashboard } from './pages/Dashboard';
+import { Inventory } from './pages/Inventory';
+import { StockRequests } from './pages/StockRequests';
+import { Notifications } from './pages/Notifications';
+import { MyActivity } from './pages/MyActivity';
+import { SecurityCenter } from './pages/SecurityCenter';
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { user, loading } = useAuth();
@@ -27,6 +33,12 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
 function AdminRoute({ children }: { children: React.ReactNode }) {
   const { canViewAdminPanel } = useUserRights();
   if (!canViewAdminPanel) return <Navigate to="/" />;
+  return <>{children}</>;
+}
+
+function SuperadminRoute({ children }: { children: React.ReactNode }) {
+  const { isSuperadmin } = useUserRights();
+  if (!isSuperadmin) return <Navigate to="/" />;
   return <>{children}</>;
 }
 
@@ -57,11 +69,19 @@ export default function App() {
                 <Layout />
               </ProtectedRoute>
             }>
-              <Route index element={<Products />} />
+              <Route index element={<Dashboard />} />
+              <Route path="products" element={<Products />} />
+              <Route path="inventory" element={<AdminRoute><Inventory /></AdminRoute>} />
+              <Route path="stock-requests" element={<StockRequests />} />
               <Route path="price-history" element={<PriceHistory />} />
+              <Route path="activity" element={<MyActivity />} />
+              <Route path="notifications" element={<Notifications />} />
+              
               <Route path="reports" element={<ReportsRoute><Reports /></ReportsRoute>} />
               <Route path="users" element={<AdminRoute><Users /></AdminRoute>} />
               <Route path="archive" element={<AdminRoute><Archive /></AdminRoute>} />
+              
+              <Route path="security-center" element={<SuperadminRoute><SecurityCenter /></SuperadminRoute>} />
               <Route path="settings" element={<SystemConfigRoute><Settings /></SystemConfigRoute>} />
               <Route path="audit-logs" element={<SystemConfigRoute><AuditLogs /></SystemConfigRoute>} />
               <Route path="role-permissions" element={<SystemConfigRoute><RolePermissions /></SystemConfigRoute>} />

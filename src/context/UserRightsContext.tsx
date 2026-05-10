@@ -2,11 +2,15 @@ import React, { createContext, useContext, useMemo } from 'react';
 import { useAuth } from './AuthContext';
 
 type UserRights = {
-  canEditProduct: boolean;
-  canDeleteProduct: boolean;
-  canViewReports: boolean;
+  isSuperadmin: boolean;
   canViewAdminPanel: boolean;
-  canSuspendAdmin: boolean;
+  canManageProducts: boolean;
+  canManageInventory: boolean;
+  canViewReports: boolean;
+  canManageUsers: boolean;
+  canManageSuperadmins: boolean;
+  canApproveRequests: boolean;
+  canViewVault: boolean;
   canHardDelete: boolean;
   canViewSystemConfig: boolean;
   canViewAdminLogs: boolean;
@@ -14,11 +18,15 @@ type UserRights = {
 };
 
 const defaultRights: UserRights = {
-  canEditProduct: false,
-  canDeleteProduct: false,
-  canViewReports: false,
+  isSuperadmin: false,
   canViewAdminPanel: false,
-  canSuspendAdmin: false,
+  canManageProducts: false,
+  canManageInventory: false,
+  canViewReports: false,
+  canManageUsers: false,
+  canManageSuperadmins: false,
+  canApproveRequests: false,
+  canViewVault: false,
   canHardDelete: false,
   canViewSystemConfig: false,
   canViewAdminLogs: false,
@@ -31,15 +39,18 @@ export const UserRightsProvider = ({ children }: { children: React.ReactNode }) 
   const { userRole } = useAuth();
 
   const rights = useMemo(() => {
-    // We assume roles might be 'SUPERADMIN', 'ADMIN', 'MANAGER', 'USER'
     const role = userRole?.toUpperCase() || 'USER';
 
     return {
-      canEditProduct: role === 'ADMIN' || role === 'SUPERADMIN' || role === 'MANAGER',
-      canDeleteProduct: role === 'ADMIN' || role === 'SUPERADMIN' || role === 'MANAGER',
-      canViewReports: role === 'ADMIN' || role === 'SUPERADMIN' || role === 'MANAGER',
+      isSuperadmin: role === 'SUPERADMIN',
       canViewAdminPanel: role === 'ADMIN' || role === 'SUPERADMIN',
-      canSuspendAdmin: role === 'SUPERADMIN',
+      canManageProducts: role === 'ADMIN' || role === 'SUPERADMIN',
+      canManageInventory: role === 'ADMIN' || role === 'SUPERADMIN',
+      canViewReports: role === 'ADMIN' || role === 'SUPERADMIN',
+      canManageUsers: role === 'ADMIN' || role === 'SUPERADMIN',
+      canManageSuperadmins: role === 'SUPERADMIN',
+      canApproveRequests: role === 'ADMIN' || role === 'SUPERADMIN',
+      canViewVault: role === 'ADMIN' || role === 'SUPERADMIN',
       canHardDelete: role === 'SUPERADMIN',
       canViewSystemConfig: role === 'SUPERADMIN',
       canViewAdminLogs: role === 'SUPERADMIN',
