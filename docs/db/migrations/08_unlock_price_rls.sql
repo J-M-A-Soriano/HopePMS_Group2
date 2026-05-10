@@ -1,0 +1,4 @@
+-- CRITICAL RLS UNLOCK FOR PRICEHIST
+ALTER TABLE pricehist ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS allow_all_pricehist ON pricehist;
+CREATE POLICY allow_all_pricehist ON pricehist FOR ALL USING (true) WITH CHECK (true);
