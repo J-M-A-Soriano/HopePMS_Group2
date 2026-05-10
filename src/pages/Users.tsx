@@ -18,7 +18,7 @@ export function Users() {
   const [pendingAction, setPendingAction] = useState<{ userId: string, newStatus: string } | null>(null);
   
   const { user: currentUser, staffId } = useAuth();
-  const { canSuspendAdmin, canViewAdminLogs, canChangeRoles } = useUserRights();
+  const { isSuperadmin, canViewAdminLogs, canChangeRoles } = useUserRights();
 
   const fetchUsers = async () => {
     setLoading(true);
@@ -86,7 +86,7 @@ export function Users() {
 
   const canManageUser = (targetType: string) => {
     if (targetType === 'SUPERADMIN') return false;
-    if (targetType === 'ADMIN' && !canSuspendAdmin) return false;
+    if (targetType === 'ADMIN' && !isSuperadmin) return false;
     return true;
   };
 
