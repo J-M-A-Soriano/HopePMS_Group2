@@ -1,15 +1,17 @@
 import React, { useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabase';
-import { ShieldCheck, Activity, Trash2, ShieldAlert } from 'lucide-react';
+import { ShieldCheck, Activity, Trash2, ShieldAlert, Download } from 'lucide-react';
 import { ActionConfirmModal } from '@/components/ActionConfirmModal';
 import { useAuth } from '@/context/AuthContext';
 import { useUserRights } from '@/context/UserRightsContext';
 
 export function Users() {
   const [users, setUsers] = useState<any[]>([]);
-  const [auditLogs, setAuditLogs] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState<'staff' | 'audit'>('staff');
+  
+  // Pagination
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(10);
   
   // Modal State
   const [modalOpen, setModalOpen] = useState(false);
@@ -27,18 +29,8 @@ export function Users() {
     setLoading(false);
   };
 
-  const fetchAuditLogs = async () => {
-    try {
-      const { data, error } = await supabase.from('audit_logs').select('*').order('created_at', { ascending: false }).limit(50);
-      if (!error && data) {
-        setAuditLogs(data);
-      }
-    } catch(e) { console.error(e); }
-  };
-
   useEffect(() => {
     fetchUsers();
-    fetchAuditLogs();
   }, []);
 
   const triggerStatusChange = (userId: string, newStatus: string) => {
@@ -64,7 +56,6 @@ export function Users() {
         }]);
 
         await fetchUsers();
-        await fetchAuditLogs();
       }
     } catch(e) { console.error(e); }
     setModalOpen(false);
@@ -87,21 +78,40 @@ export function Users() {
         }]);
 
         await fetchUsers();
-        await fetchAuditLogs();
       }
     } catch(e) { console.error(e); }
   };
 
   const adminIds = users.filter(u => u.user_type === 'ADMIN' || u.user_type === 'SUPERADMIN').map(u => u.userid);
-  const filteredAuditLogs = auditLogs.filter(log => {
-      if (canViewAdminLogs) return true;
-      return !adminIds.includes(log.performed_by);
-  });
 
   const canManageUser = (targetType: string) => {
     if (targetType === 'SUPERADMIN') return false;
     if (targetType === 'ADMIN' && !canSuspendAdmin) return false;
     return true;
+  };
+
+  // Pagination logic
+  const totalPages = Math.ceil(users.length / itemsPerPage);
+  const paginatedUsers = users.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+
+  const handleExportCSV = () => {
+    const headers = ['User ID', 'Username', 'Role', 'Status', 'Staff ID', 'Created At'];
+    const rows = users.map(u => [
+      u.userid,
+      u.username,
+      u.user_type,
+      u.record_status,
+      u.staff_id || '',
+      u.created_at
+    ]);
+    const csvContent = "data:text/csv;charset=utf-8," + [headers.join(','), ...rows.map(e => e.join(','))].join('\n');
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", `users_export_${new Date().toISOString().split('T')[0]}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
   };
 
   return (
@@ -113,17 +123,17 @@ export function Users() {
           </h1>
           <p className="text-slate-500 dark:text-slate-400">Manage security clearances and audit critical events.</p>
         </div>
-      </div>
-
-      <div className="flex space-x-4 mb-4 border-b border-slate-200 dark:border-slate-700">
-         <button onClick={() => setActiveTab('staff')} className={`pb-2 px-4 font-medium text-sm transition-colors ${activeTab === 'staff' ? 'border-b-2 border-primary text-primary' : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200'}`}>Staff Console</button>
-         <button onClick={() => setActiveTab('audit')} className={`pb-2 px-4 font-medium text-sm transition-colors ${activeTab === 'audit' ? 'border-b-2 border-primary text-primary' : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200'}`}>Activity Feed</button>
+        <div className="flex gap-2">
+           <button onClick={handleExportCSV} className="bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300 px-4 py-2 rounded-md font-medium hover:bg-slate-200 dark:hover:bg-slate-700 flex items-center gap-2 transition-colors border dark:border-slate-700 shadow-sm">
+              <Download className="w-4 h-4" /> Export Users
+           </button>
+        </div>
       </div>
 
       <div className="bg-white dark:bg-slate-800 rounded-lg border dark:border-slate-700 shadow-sm overflow-x-auto w-full transition-colors">
-        {loading && activeTab === 'staff' ? (
+        {loading ? (
           <div className="p-6 text-slate-500 dark:text-slate-400 text-center">Loading users...</div>
-        ) : activeTab === 'staff' ? (
+        ) : (
           <table className="w-full text-left text-sm whitespace-nowrap">
             <thead className="bg-slate-50 dark:bg-slate-900 border-b dark:border-slate-700">
               <tr>
@@ -135,11 +145,22 @@ export function Users() {
               </tr>
             </thead>
             <tbody className="divide-y dark:divide-slate-700">
-              {users.map(u => (
+              {paginatedUsers.map(u => (
                 <tr key={u.userid} className="hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors">
-                  <td className="px-6 py-4 font-medium text-slate-900 dark:text-white">
-                    {u.username}
-                    {u.user_type === 'SUPERADMIN' && <span className="ml-2 text-xs bg-purple-100 dark:bg-purple-900/40 text-purple-700 dark:text-purple-300 px-2 py-0.5 rounded uppercase font-bold">Super</span>}
+                  <td className="px-6 py-4 font-medium text-slate-900 dark:text-white flex items-center gap-3">
+                    <div className="w-8 h-8 rounded-full overflow-hidden bg-indigo-100 dark:bg-indigo-900/50 flex items-center justify-center shrink-0 border border-slate-200 dark:border-slate-700">
+                      {u.avatar_url ? (
+                        <img src={u.avatar_url} alt="Avatar" className="w-full h-full object-cover" />
+                      ) : (
+                        <span className="text-xs font-bold text-indigo-600 dark:text-indigo-400 uppercase">
+                          {u.username.charAt(0)}
+                        </span>
+                      )}
+                    </div>
+                    <div className="flex flex-col">
+                      <span className="truncate max-w-[200px]" title={u.username}>{u.username}</span>
+                      {u.user_type === 'SUPERADMIN' && <span className="text-[10px] bg-purple-100 dark:bg-purple-900/40 text-purple-700 dark:text-purple-300 px-1.5 py-0.5 rounded uppercase font-bold w-max mt-0.5">Super</span>}
+                    </div>
                   </td>
                   <td className="px-6 py-4 text-slate-600 dark:text-slate-300 uppercase text-xs">{u.staff_id || 'N/A'}</td>
                   <td className="px-6 py-4 text-slate-600 dark:text-slate-300">
@@ -186,18 +207,42 @@ export function Users() {
               ))}
             </tbody>
           </table>
-        ) : (
-          <div className="p-6 h-[500px] overflow-y-auto space-y-4">
-             {filteredAuditLogs.length === 0 ? <p className="text-slate-500 dark:text-slate-400">No events logged yet.</p> : filteredAuditLogs.map(log => (
-               <div key={log.id} className="flex gap-4 p-4 border dark:border-slate-700 rounded bg-slate-50 dark:bg-slate-900/50 items-start">
-                  <Activity className="w-5 h-5 text-indigo-500 mt-1" />
-                  <div>
-                    <p className="font-semibold text-slate-900 dark:text-white text-sm">{log.action_type}</p>
-                    <p className="text-xs text-slate-500 dark:text-slate-400">Performed by: {log.staff_id_used}</p>
-                    <p className="text-xs text-slate-400 dark:text-slate-500 mt-2">{new Date(log.created_at).toLocaleString()}</p>
-                  </div>
-               </div>
-             ))}
+        )}
+        
+        {!loading && (
+          <div className="p-4 border-t dark:border-slate-700 flex flex-col sm:flex-row items-center justify-between gap-4 bg-slate-50/50 dark:bg-slate-900/50">
+             <div className="text-sm text-slate-500 dark:text-slate-400">
+               Showing {paginatedUsers.length > 0 ? (currentPage - 1) * itemsPerPage + 1 : 0} to {Math.min(currentPage * itemsPerPage, users.length)} of {users.length} entries
+             </div>
+             <div className="flex items-center gap-4">
+                <div className="flex items-center gap-2">
+                   <span className="text-sm text-slate-500 dark:text-slate-400">Rows per page:</span>
+                   <select 
+                      value={itemsPerPage} 
+                      onChange={e => {setItemsPerPage(Number(e.target.value)); setCurrentPage(1);}}
+                      className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-600 rounded text-sm p-1 outline-none text-slate-700 dark:text-slate-300"
+                   >
+                      <option value={10}>10</option>
+                      <option value={25}>25</option>
+                      <option value={50}>50</option>
+                   </select>
+                </div>
+                <div className="flex gap-1">
+                   <button 
+                     disabled={currentPage === 1} 
+                     onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                     className="px-3 py-1 border border-slate-200 dark:border-slate-600 rounded bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 disabled:opacity-50 hover:bg-slate-50 dark:hover:bg-slate-700 transition"
+                   >Prev</button>
+                   <span className="px-3 py-1 text-sm text-slate-600 dark:text-slate-300 font-medium">
+                      {currentPage} / {totalPages || 1}
+                   </span>
+                   <button 
+                     disabled={currentPage === totalPages || totalPages === 0} 
+                     onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                     className="px-3 py-1 border border-slate-200 dark:border-slate-600 rounded bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 disabled:opacity-50 hover:bg-slate-50 dark:hover:bg-slate-700 transition"
+                   >Next</button>
+                </div>
+             </div>
           </div>
         )}
       </div>

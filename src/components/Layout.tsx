@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Outlet, Link, useLocation } from 'react-router-dom';
-import { LogOut, Package, ShieldCheck, History, BarChart3, Settings as SettingsIcon, UserCircle, Menu, X } from 'lucide-react';
+import { LogOut, Package, ShieldCheck, History, BarChart3, Settings as SettingsIcon, UserCircle, Menu, X, Activity, ShieldAlert, Database } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { useUserRights } from '@/context/UserRightsContext';
 import { useAuth } from '@/context/AuthContext';
@@ -91,11 +91,30 @@ export function Layout() {
             </>
           )}
           {canViewSystemConfig && (
-            <Link to="/settings" className={getLinkClasses('/settings')}>
-              <SettingsIcon className="h-4 w-4" />
-              System Config
-            </Link>
+            <>
+              <Link to="/settings" className={getLinkClasses('/settings')}>
+                <SettingsIcon className="h-4 w-4" />
+                System Config
+              </Link>
+              <Link to="/audit-logs" className={getLinkClasses('/audit-logs')}>
+                <Activity className="h-4 w-4 text-indigo-500" />
+                Audit Logs
+              </Link>
+              <Link to="/role-permissions" className={getLinkClasses('/role-permissions')}>
+                <ShieldAlert className="h-4 w-4 text-rose-500" />
+                Role Permissions
+              </Link>
+              <Link to="/backup-restore" className={getLinkClasses('/backup-restore')}>
+                <Database className="h-4 w-4 text-teal-500" />
+                Backup & Restore
+              </Link>
+            </>
           )}
+          <div className="my-2 border-t border-border/50"></div>
+          <Link to="/profile" className={getLinkClasses('/profile')}>
+             <UserCircle className="h-4 w-4 text-indigo-500" />
+             My Profile
+          </Link>
         </nav>
       </div>
     </>
@@ -123,7 +142,14 @@ export function Layout() {
           >
             <Menu className="w-6 h-6" />
           </button>
-          <div className="flex-1"></div>
+          
+          <div className="flex-1 hidden sm:flex">
+             {/* Breadcrumbs placeholder */}
+             <div className="text-sm font-medium text-slate-500 dark:text-slate-400 capitalize">
+               {location.pathname === '/' ? 'Products' : location.pathname.substring(1).replace('-', ' ')}
+             </div>
+          </div>
+          <div className="flex-1 sm:hidden"></div>
           <div className="flex items-center gap-3">
             <ThemeToggle />
             <button 

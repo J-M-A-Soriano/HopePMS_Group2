@@ -12,6 +12,10 @@ import { Users } from './pages/Users';
 import { AccessDenied } from './pages/AccessDenied';
 import { Settings } from './pages/Settings';
 import { Archive } from './pages/Archive';
+import { AuditLogs } from './pages/AuditLogs';
+import { RolePermissions } from './pages/RolePermissions';
+import { BackupRestore } from './pages/BackupRestore';
+import { Profile } from './pages/Profile';
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { user, loading } = useAuth();
@@ -59,6 +63,10 @@ export default function App() {
               <Route path="users" element={<AdminRoute><Users /></AdminRoute>} />
               <Route path="archive" element={<AdminRoute><Archive /></AdminRoute>} />
               <Route path="settings" element={<SystemConfigRoute><Settings /></SystemConfigRoute>} />
+              <Route path="audit-logs" element={<SystemConfigRoute><AuditLogs /></SystemConfigRoute>} />
+              <Route path="role-permissions" element={<SystemConfigRoute><RolePermissions /></SystemConfigRoute>} />
+              <Route path="backup-restore" element={<SystemConfigRoute><BackupRestore /></SystemConfigRoute>} />
+              <Route path="profile" element={<Profile />} />
             </Route>
           </Routes>
         </Router>

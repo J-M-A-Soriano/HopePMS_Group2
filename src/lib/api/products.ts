@@ -9,6 +9,11 @@ export type Product = {
   created_at?: string;
   updated_at?: string;
   unitPrice?: number; // Injected dynamically at runtime
+  stock_quantity?: number;
+  low_stock_threshold?: number;
+  category?: string;
+  supplier?: string;
+  sku?: string;
 };
 
 // Fetch active products
@@ -57,9 +62,22 @@ export const fetchProducts = async () => {
 // Add a new product pipeline
 export const addProduct = async (product: Omit<Product, 'record_status' | 'created_at' | 'updated_at' | 'unitPrice'>, initialPrice: number = 0) => {
   // 1. Securely Insert Core Baseline
+  const payload: any = { 
+    prodCode: product.prodCode, 
+    description: product.description, 
+    unit: product.unit, 
+    record_status: 'ACTIVE' 
+  };
+  
+  if (product.category !== undefined) payload.category = product.category;
+  if (product.supplier !== undefined) payload.supplier = product.supplier;
+  if (product.sku !== undefined) payload.sku = product.sku;
+  if (product.stock_quantity !== undefined) payload.stock_quantity = product.stock_quantity;
+  if (product.low_stock_threshold !== undefined) payload.low_stock_threshold = product.low_stock_threshold;
+
   const { data, error } = await supabase
     .from('product')
-    .insert([{ prodCode: product.prodCode, description: product.description, unit: product.unit, record_status: 'ACTIVE' }])
+    .insert([payload])
     .select()
     .single();
 
@@ -83,16 +101,27 @@ export const addProduct = async (product: Omit<Product, 'record_status' | 'creat
 // Update an existing product
 export const updateProduct = async (
   prodCode: string, 
-  description: string, 
-  unit: string, 
+  updates: Partial<Product>,
   newPrice: number = 0,
   currentPrice: number = 0,
   staffId: string = '', 
   performedBy: string = ''
 ) => {
+  const payload: any = { 
+    updated_at: new Date().toISOString() 
+  };
+  
+  if (updates.description !== undefined) payload.description = updates.description;
+  if (updates.unit !== undefined) payload.unit = updates.unit;
+  if (updates.category !== undefined) payload.category = updates.category;
+  if (updates.supplier !== undefined) payload.supplier = updates.supplier;
+  if (updates.sku !== undefined) payload.sku = updates.sku;
+  if (updates.stock_quantity !== undefined) payload.stock_quantity = updates.stock_quantity;
+  if (updates.low_stock_threshold !== undefined) payload.low_stock_threshold = updates.low_stock_threshold;
+
   const { data, error } = await supabase
     .from('product')
-    .update({ description, unit, updated_at: new Date().toISOString() })
+    .update(payload)
     .eq('prodcode', prodCode) // Defensively downcased
     .select()
     .single();
