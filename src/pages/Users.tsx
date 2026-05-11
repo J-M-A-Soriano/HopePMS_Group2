@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabase';
 import { ShieldCheck, Activity, Trash2, ShieldAlert, Download } from 'lucide-react';
+import { logAction } from '@/lib/api/audit';
 import { ActionConfirmModal } from '@/components/ActionConfirmModal';
 import { useAuth } from '@/context/AuthContext';
 import { useUserRights } from '@/context/UserRightsContext';
@@ -47,13 +48,16 @@ export function Users() {
       
       if (!error) {
         // Record Audit Log
-        await supabase.from('audit_logs').insert([{
-          performed_by: currentUser.id,
-          action_type: `USER_${newStatus}`,
-          target_id: userId,
-          staff_id_used: staffId || 'UNKNOWN',
-          metadata: { newStatus }
-        }]);
+        await logAction({
+          actionType: `USER_${newStatus}`,
+          module: 'User Management',
+          status: newStatus === 'ACTIVE' ? 'Success' : 'Warning',
+          description: `User status changed to ${newStatus}`,
+          targetId: userId,
+          newValue: { newStatus },
+          performedBy: currentUser.id,
+          staffId: staffId || 'UNKNOWN'
+        });
 
         await fetchUsers();
       }
@@ -69,13 +73,16 @@ export function Users() {
       
       if (!error) {
         // Record Audit Log
-        await supabase.from('audit_logs').insert([{
-          performed_by: currentUser.id,
-          action_type: `ROLE_CHANGED_TO_${newRole}`,
-          target_id: userId,
-          staff_id_used: staffId || 'UNKNOWN',
-          metadata: { newRole }
-        }]);
+        await logAction({
+          actionType: `ROLE_CHANGED_TO_${newRole}`,
+          module: 'User Management',
+          status: 'Warning',
+          description: `User role changed to ${newRole}`,
+          targetId: userId,
+          newValue: { newRole },
+          performedBy: currentUser.id,
+          staffId: staffId || 'UNKNOWN'
+        });
 
         await fetchUsers();
       }

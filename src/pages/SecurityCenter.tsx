@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { ShieldCheck, Lock, Users, AlertTriangle, Activity } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
+import { logAction } from '@/lib/api/audit';
 import { useAuth } from '@/context/AuthContext';
 
 export function SecurityCenter() {
@@ -49,12 +50,14 @@ export function SecurityCenter() {
     try {
       const { error } = await supabase.from('user').update({ record_status: 'INACTIVE' }).eq('userid', userId);
       if (!error) {
-         await supabase.from('audit_logs').insert([{
-            performed_by: currentUser?.id,
-            action_type: 'EMERGENCY_SUSPEND',
-            target_id: userId,
-            metadata: { reason: 'Suspended via Security Center' }
-         }]);
+         await logAction({
+            actionType: 'EMERGENCY_SUSPEND',
+            module: 'Security Logs',
+            status: 'Warning',
+            description: `Emergency suspension of user ${username} via Security Center`,
+            targetId: userId,
+            performedBy: currentUser?.id
+         });
          setActiveUsers(activeUsers.filter(u => u.userid !== userId));
       }
     } catch (err) {

@@ -72,7 +72,17 @@ export function PriceHistory() {
             .eq('effdate', editingPrice.effDate);
         
         if (!error) {
-           await logAction('PRICE_OVERRIDE', editingPrice.prodCode, { oldPrice: editingPrice.unitPrice, newPrice, staff_id_used: staffId }, user.id);
+           await logAction({
+             actionType: 'PRICE_OVERRIDE',
+             module: 'Products',
+             status: 'Warning',
+             description: `Manual price override from ${editingPrice.unitPrice} to ${newPrice}`,
+             targetId: editingPrice.prodCode,
+             oldValue: { unitPrice: editingPrice.unitPrice },
+             newValue: { unitPrice: newPrice },
+             performedBy: user.id,
+             staffId: staffId
+           });
            loadHistory();
         } else {
            console.error("Update failed:", error);

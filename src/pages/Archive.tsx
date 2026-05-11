@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabase';
 import { ArchiveRestore, Trash2 } from 'lucide-react';
+import { logAction } from '@/lib/api/audit';
 import { ActionConfirmModal } from '@/components/ActionConfirmModal';
 import { useAuth } from '@/context/AuthContext';
 import { useUserRights } from '@/context/UserRightsContext';
@@ -46,33 +47,37 @@ export function Archive() {
       if (pendingAction.isPurge) {
          if (pendingAction.type === 'USER') {
            await supabase.from('user').delete().eq('userid', pendingAction.id);
-           await supabase.from('audit_logs').insert([{ performed_by: currentUser.id, action_type: `USER_PURGED`, target_id: pendingAction.id, staff_id_used: staffId }]);
+           await logAction({ actionType: 'USER_PURGED', module: 'Archive/Vault', status: 'Warning', description: `User ${pendingAction.id} was permanently purged`, targetId: pendingAction.id, performedBy: currentUser.id, staffId: staffId });
          } else {
            await supabase.from('product').delete().eq('prodcode', pendingAction.id);
-           await supabase.from('audit_logs').insert([{ performed_by: currentUser.id, action_type: `PRODUCT_PURGED`, target_id: pendingAction.id, staff_id_used: staffId }]);
+           await logAction({ actionType: 'PRODUCT_PURGED', module: 'Archive/Vault', status: 'Warning', description: `Product ${pendingAction.id} was permanently purged`, targetId: pendingAction.id, performedBy: currentUser.id, staffId: staffId });
          }
       } else {
         if (pendingAction.type === 'USER') {
           const { error } = await supabase.from('user').update({ record_status: 'ACTIVE' }).eq('userid', pendingAction.id);
           if (!error) {
-            await supabase.from('audit_logs').insert([{
-              performed_by: currentUser.id,
-              action_type: `USER_RESTORED`,
-              target_id: pendingAction.id,
-              staff_id_used: staffId || 'UNKNOWN',
-              metadata: { target_type: 'USER' }
-            }]);
+            await logAction({
+              actionType: `USER_RESTORED`,
+              module: 'Archive/Vault',
+              status: 'Success',
+              description: `User ${pendingAction.id} was restored`,
+              targetId: pendingAction.id,
+              performedBy: currentUser.id,
+              staffId: staffId || 'UNKNOWN'
+            });
           }
         } else {
           const { error } = await supabase.from('product').update({ record_status: 'ACTIVE' }).eq('prodcode', pendingAction.id);
           if (!error) {
-             await supabase.from('audit_logs').insert([{
-              performed_by: currentUser.id,
-              action_type: `PRODUCT_RESTORED`,
-              target_id: currentUser.id,
-              staff_id_used: staffId || 'UNKNOWN',
-              metadata: { target_type: 'PRODUCT', prodCode: pendingAction.id }
-            }]);
+             await logAction({
+              actionType: `PRODUCT_RESTORED`,
+              module: 'Archive/Vault',
+              status: 'Success',
+              description: `Product ${pendingAction.id} was restored`,
+              targetId: pendingAction.id,
+              performedBy: currentUser.id,
+              staffId: staffId || 'UNKNOWN'
+            });
           }
         }
       }

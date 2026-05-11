@@ -60,7 +60,12 @@ export const fetchProducts = async () => {
 };
 
 // Add a new product pipeline
-export const addProduct = async (product: Omit<Product, 'record_status' | 'created_at' | 'updated_at' | 'unitPrice'>, initialPrice: number = 0) => {
+export const addProduct = async (
+  product: Omit<Product, 'record_status' | 'created_at' | 'updated_at' | 'unitPrice'>, 
+  initialPrice: number = 0,
+  staffId: string = '',
+  performedBy: string = ''
+) => {
   // 1. Securely Insert Core Baseline
   const payload: any = { 
     prodCode: product.prodCode, 
@@ -93,6 +98,19 @@ export const addProduct = async (product: Omit<Product, 'record_status' | 'creat
 
   if (priceError) {
     console.error("Failed to commit initial LEDGER baseline for pricing:", priceError);
+  }
+
+  if (performedBy) {
+    await logAction({
+      actionType: 'PRODUCT_CREATE',
+      module: 'Products',
+      status: 'Success',
+      description: `Created new product ${product.prodCode}`,
+      targetId: product.prodCode,
+      newValue: product,
+      performedBy,
+      staffId
+    });
   }
 
   return data;
@@ -141,25 +159,58 @@ export const updateProduct = async (
         console.error("Failed to commit Price Update Ledger Baseline:", priceError);
      } else if (performedBy) {
         // Log the severe price override independently
-        await logAction('PRICE_OVERRIDE', prodCode, { oldPrice: currentPrice, newPrice, staff_id_used: staffId }, performedBy);
+        await logAction({
+          actionType: 'PRICE_OVERRIDE',
+          module: 'Products',
+          status: 'Warning',
+          description: `Price overridden from ${currentPrice} to ${newPrice}`,
+          targetId: prodCode,
+          oldValue: { unitPrice: currentPrice },
+          newValue: { unitPrice: newPrice },
+          performedBy,
+          staffId
+        });
      }
   }
   
   if (performedBy) {
-    await logAction('PRODUCT_UPDATE', prodCode, { staff_id_used: staffId }, performedBy);
+    await logAction({
+      actionType: 'PRODUCT_UPDATE',
+      module: 'Products',
+      status: 'Success',
+      description: `Updated product ${prodCode}`,
+      targetId: prodCode,
+      oldValue: {}, // Ideal to fetch old value, but leaving empty for now or populate if available
+      newValue: updates,
+      performedBy,
+      staffId
+    });
   }
   
   return data;
 };
 
 // Soft delete product (set record_status to INACTIVE or DELETED)
-export const softDeleteProduct = async (prodCode: string) => {
+export const softDeleteProduct = async (prodCode: string, staffId: string = '', performedBy: string = '') => {
   const { error } = await supabase
     .from('product')
     .update({ record_status: 'INACTIVE', updated_at: new Date().toISOString() })
     .eq('prodcode', prodCode);
 
   if (error) throw error;
+
+  if (performedBy) {
+    await logAction({
+      actionType: 'PRODUCT_DELETE',
+      module: 'Products',
+      status: 'Warning',
+      description: `Deleted (archived) product ${prodCode}`,
+      targetId: prodCode,
+      performedBy,
+      staffId
+    });
+  }
+
   return true;
 };
 

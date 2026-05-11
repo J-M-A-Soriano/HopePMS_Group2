@@ -131,7 +131,7 @@ export function Products() {
   const handleDeleteConfirmed = async () => {
     if (!productToDelete) return;
     try {
-      await softDeleteProduct(productToDelete);
+      await softDeleteProduct(productToDelete, staffId || '', user?.id || '');
       await loadProducts();
       showFeedback('Product moved to archive.', 'success');
     } catch (e) {
@@ -193,7 +193,9 @@ export function Products() {
       } else {
         await addProduct(
           { prodCode: formData.prodCode, ...updates }, 
-          parsedPrice
+          parsedPrice,
+          staffId || '',
+          user?.id || ''
         );
       }
       setShowModal(false);

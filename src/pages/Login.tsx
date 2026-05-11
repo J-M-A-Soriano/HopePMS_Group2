@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { supabase } from '@/lib/supabase';
 import { Link, Navigate } from 'react-router-dom';
+import { logAction } from '@/lib/api/audit';
 import { useAuth } from '@/context/AuthContext';
 import { Package } from 'lucide-react';
 
@@ -39,19 +40,45 @@ export function Login() {
   const handleEmailLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
-    if (error) setError(error.message);
+    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+    if (error) {
+      setError(error.message);
+      await logAction({
+        actionType: 'LOGIN_FAILED',
+        module: 'Authentication',
+        status: 'Failed',
+        description: `Failed email login attempt for: ${email}`,
+        newValue: { email, error: error.message }
+      });
+    } else if (data.user) {
+      await logAction({
+        actionType: 'USER_LOGIN',
+        module: 'Authentication',
+        status: 'Success',
+        description: `User logged in via email successfully`,
+        performedBy: data.user.id
+      });
+    }
   };
 
   const handleGoogleLogin = async () => {
     setError('');
-    const { error } = await supabase.auth.signInWithOAuth({ 
+    const { data, error } = await supabase.auth.signInWithOAuth({ 
       provider: 'google',
       options: {
         redirectTo: window.location.origin
       }
     });
-    if (error) setError(error.message);
+    if (error) {
+      setError(error.message);
+      await logAction({
+        actionType: 'LOGIN_FAILED',
+        module: 'Authentication',
+        status: 'Failed',
+        description: `Failed Google OAuth login attempt`,
+        newValue: { error: error.message }
+      });
+    }
   };
 
   return (

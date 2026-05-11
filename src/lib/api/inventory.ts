@@ -58,7 +58,15 @@ export const submitStockRequest = async (productId: string, type: string, quanti
 
   if (error) throw error;
   
-  await logAction('STOCK_REQUEST_SUBMITTED', data.id, { product_id: productId, quantity }, userData.user.id);
+  await logAction({
+    actionType: 'STOCK_REQUEST_SUBMITTED',
+    module: 'Inventory',
+    status: 'Info',
+    description: `Submitted stock request for ${quantity} units of product ${productId}`,
+    targetId: data.id,
+    newValue: { product_id: productId, quantity },
+    performedBy: userData.user.id
+  });
   return data;
 };
 
@@ -72,7 +80,14 @@ export const updateRequestStatus = async (requestId: string, status: 'APPROVED' 
 
   if (error) throw error;
 
-  await logAction(`STOCK_REQUEST_${status}`, requestId, { request_id: requestId }, adminId);
+  await logAction({
+    actionType: `STOCK_REQUEST_${status}`,
+    module: 'Inventory',
+    status: status === 'APPROVED' ? 'Success' : 'Warning',
+    description: `Stock request ${requestId} was ${status}`,
+    targetId: requestId,
+    performedBy: adminId
+  });
 
   // If approved, create an inventory transaction to fulfill it
   if (status === 'APPROVED' && data) {
@@ -119,7 +134,15 @@ export const performInventoryTransaction = async (productId: string, type: strin
 
   if (error) throw error;
   
-  await logAction('INVENTORY_TRANSACTION', data.id, { product_id: productId, type, quantity }, adminId);
+  await logAction({
+    actionType: 'INVENTORY_TRANSACTION',
+    module: 'Inventory',
+    status: 'Success',
+    description: `Inventory transaction: ${type} of ${quantity} for product ${productId}`,
+    targetId: data.id,
+    newValue: { product_id: productId, type, quantity },
+    performedBy: adminId
+  });
   return data;
 };
 
