@@ -11,6 +11,7 @@ type UserRights = {
   canManageSuperadmins: boolean;
   canApproveRequests: boolean;
   canViewVault: boolean;
+  canSoftDelete: boolean;
   canHardDelete: boolean;
   canViewSystemConfig: boolean;
   canViewAdminLogs: boolean;
@@ -27,6 +28,7 @@ const defaultRights: UserRights = {
   canManageSuperadmins: false,
   canApproveRequests: false,
   canViewVault: false,
+  canSoftDelete: false,
   canHardDelete: false,
   canViewSystemConfig: false,
   canViewAdminLogs: false,
@@ -51,6 +53,7 @@ export const UserRightsProvider = ({ children }: { children: React.ReactNode }) 
       canManageSuperadmins: role === 'SUPERADMIN',
       canApproveRequests: role === 'ADMIN' || role === 'SUPERADMIN',
       canViewVault: role === 'ADMIN' || role === 'SUPERADMIN',
+      canSoftDelete: role === 'ADMIN' || role === 'SUPERADMIN',
       canHardDelete: role === 'SUPERADMIN',
       canViewSystemConfig: role === 'SUPERADMIN',
       canViewAdminLogs: role === 'SUPERADMIN',

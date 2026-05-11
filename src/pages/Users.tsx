@@ -148,7 +148,7 @@ export function Users() {
                 <th className="px-6 py-4 font-semibold text-slate-600 dark:text-slate-300">Staff ID</th>
                 <th className="px-6 py-4 font-semibold text-slate-600 dark:text-slate-300">Role</th>
                 <th className="px-6 py-4 font-semibold text-slate-600 dark:text-slate-300">Status</th>
-                <th className="px-6 py-4 font-semibold text-slate-600 dark:text-slate-300 text-right">Kill Switch</th>
+                <th className="px-6 py-4 font-semibold text-slate-600 dark:text-slate-300 text-right">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y dark:divide-slate-700">
@@ -194,20 +194,22 @@ export function Users() {
                     {canManageUser(u.user_type) ? (
                       u.record_status === 'ACTIVE' ? (
                         <div className="flex justify-end gap-2">
-                          <button onClick={() => triggerStatusChange(u.userid, 'SUSPENDED')} className="text-orange-600 dark:text-orange-400 bg-orange-50 dark:bg-orange-900/20 px-3 py-1 rounded hover:bg-orange-100 dark:hover:bg-orange-900/40 transition font-medium">
-                             Suspend
-                          </button>
-                          <button onClick={() => triggerStatusChange(u.userid, 'TERMINATED')} className="text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20 hover:bg-red-100 dark:hover:bg-red-900/40 px-3 py-1 rounded transition font-medium">
-                             Terminate
+                          <button onClick={() => triggerStatusChange(u.userid, 'INACTIVE')} className="text-orange-600 dark:text-orange-400 bg-orange-50 dark:bg-orange-900/20 px-3 py-1 rounded hover:bg-orange-100 dark:hover:bg-orange-900/40 transition font-medium">
+                             Deactivate
                           </button>
                         </div>
                       ) : (
                         <button onClick={() => triggerStatusChange(u.userid, 'ACTIVE')} className="text-green-600 dark:text-green-400 bg-green-50 dark:bg-green-900/20 px-3 py-1 rounded hover:bg-green-100 dark:hover:bg-green-900/40 transition font-medium">
-                           Restore Active
+                           Activate
                         </button>
                       )
                     ) : (
-                      <span className="text-slate-400 text-sm italic">Oversight Required</span>
+                      <span
+                        className="text-slate-400 text-sm italic cursor-not-allowed"
+                        title="SUPERADMIN accounts cannot be modified"
+                      >
+                        Protected
+                      </span>
                     )}
                   </td>
                 </tr>

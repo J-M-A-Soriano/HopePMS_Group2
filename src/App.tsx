@@ -5,6 +5,7 @@ import { ThemeProvider } from './context/ThemeProvider';
 import { Layout } from './components/Layout';
 import { Login } from './pages/Login';
 import { Register } from './pages/Register';
+import { AuthCallback } from './pages/AuthCallback';
 import { Products } from './pages/Products';
 import { PriceHistory } from './pages/PriceHistory';
 import { Reports } from './pages/Reports';
@@ -62,6 +63,7 @@ export default function App() {
           <Routes>
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
+            <Route path="/auth/callback" element={<AuthCallback />} />
             <Route path="/access-denied" element={<AccessDenied />} />
             
             <Route path="/" element={

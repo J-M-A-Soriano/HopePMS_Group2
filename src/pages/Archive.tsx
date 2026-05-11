@@ -94,7 +94,7 @@ export function Archive() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
         <div>
           <h1 className="text-3xl font-bold text-slate-800 dark:text-white flex items-center gap-3">
-            <ArchiveRestore className="w-8 h-8 text-primary" /> Archive & Recovery
+            <ArchiveRestore className="w-8 h-8 text-primary" /> Archive &amp; Recovery
           </h1>
           <p className="text-slate-500 dark:text-slate-400">Restore suspended accounts and deleted inventory securely.</p>
         </div>
@@ -103,49 +103,90 @@ export function Archive() {
       {loading ? (
           <div className="text-slate-500 dark:text-slate-400 text-center py-6">Loading archives...</div>
       ) : (
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <div className="bg-white dark:bg-slate-800 rounded-lg border dark:border-slate-700 shadow-sm p-4 transition-colors">
-             <h2 className="text-lg font-bold text-slate-800 dark:text-white mb-4 border-b dark:border-slate-700 pb-2">Suspended / Terminated Users</h2>
-             {terminatedUsers.length === 0 ? <p className="text-sm text-slate-500 dark:text-slate-400">No users found.</p> : terminatedUsers.map(u => (
-               <div key={u.userid} className="flex justify-between items-center bg-slate-50 dark:bg-slate-900/50 p-3 mb-2 rounded border border-slate-100 dark:border-slate-700">
-                  <div>
-                    <p className="font-semibold text-slate-900 dark:text-white">{u.username}</p>
-                    <p className="text-xs text-slate-500 dark:text-slate-400 uppercase">{u.record_status}</p>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <button onClick={() => triggerRecovery('USER', u.userid)} className="text-green-600 dark:text-green-400 font-medium text-sm hover:underline">
-                      Restore
-                    </button>
-                    {canHardDelete && (
-                      <button onClick={() => triggerRecovery('USER', u.userid, true)} className="text-red-600 dark:text-red-400 border border-red-200 dark:border-red-900/50 bg-red-50 dark:bg-red-900/20 px-2 py-1 rounded text-xs font-medium hover:bg-red-100 dark:hover:bg-red-900/40 transition-colors">
-                        Purge
-                      </button>
-                    )}
-                  </div>
-               </div>
-             ))}
+        <div className="space-y-8">
+          {/* Deleted Items Table — DeletedItemsPage spec */}
+          <div className="bg-white dark:bg-slate-800 rounded-lg border dark:border-slate-700 shadow-sm overflow-hidden transition-colors">
+            <div className="px-6 py-4 border-b dark:border-slate-700 bg-slate-50/50 dark:bg-slate-900/50">
+              <h2 className="text-lg font-bold text-slate-800 dark:text-white flex items-center gap-2">
+                <Trash2 className="w-5 h-5 text-red-500" /> Deleted Items
+              </h2>
+              <p className="text-sm text-slate-500 dark:text-slate-400 mt-0.5">INACTIVE products — accessible to ADMIN / SUPERADMIN only.</p>
+            </div>
+            <div className="overflow-x-auto">
+              <table className="w-full text-left text-sm whitespace-nowrap">
+                <thead className="bg-slate-50 dark:bg-slate-900 border-b dark:border-slate-700">
+                  <tr>
+                    <th className="px-6 py-4 font-semibold text-slate-600 dark:text-slate-300">Product Code</th>
+                    <th className="px-6 py-4 font-semibold text-slate-600 dark:text-slate-300">Description</th>
+                    <th className="px-6 py-4 font-semibold text-slate-600 dark:text-slate-300">Stamp</th>
+                    <th className="px-6 py-4 font-semibold text-slate-600 dark:text-slate-300 text-right">Actions</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y dark:divide-slate-700">
+                  {deletedProducts.length === 0 ? (
+                    <tr>
+                      <td colSpan={4} className="px-6 py-8 text-center text-slate-500 dark:text-slate-400">No deleted products found.</td>
+                    </tr>
+                  ) : deletedProducts.map(p => (
+                    <tr key={p.prodCode} className="hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors">
+                      <td className="px-6 py-4 font-mono font-medium text-slate-900 dark:text-white">{p.prodCode}</td>
+                      <td className="px-6 py-4 text-slate-600 dark:text-slate-300">{p.description}</td>
+                      <td className="px-6 py-4 text-xs">
+                        <span className="inline-flex items-center bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400 px-2 py-1 rounded font-medium uppercase">
+                          {p.record_status}
+                        </span>
+                        {p.updated_at && (
+                          <div className="mt-1 text-slate-400 dark:text-slate-500">{new Date(p.updated_at).toLocaleDateString()}</div>
+                        )}
+                      </td>
+                      <td className="px-6 py-4 text-right">
+                        <div className="flex justify-end gap-2">
+                          <button
+                            onClick={() => triggerRecovery('PRODUCT', p.prodCode)}
+                            className="text-green-600 dark:text-green-400 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-900/50 px-3 py-1 rounded text-sm font-medium hover:bg-green-100 dark:hover:bg-green-900/40 transition-colors"
+                          >
+                            Recover
+                          </button>
+                          {canHardDelete && (
+                            <button
+                              onClick={() => triggerRecovery('PRODUCT', p.prodCode, true)}
+                              className="text-red-600 dark:text-red-400 border border-red-200 dark:border-red-900/50 bg-red-50 dark:bg-red-900/20 px-2 py-1 rounded text-xs font-medium hover:bg-red-100 dark:hover:bg-red-900/40 transition-colors"
+                            >
+                              Purge
+                            </button>
+                          )}
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
 
+          {/* Suspended / Terminated Users */}
           <div className="bg-white dark:bg-slate-800 rounded-lg border dark:border-slate-700 shadow-sm p-4 transition-colors">
-             <h2 className="text-lg font-bold text-slate-800 dark:text-white mb-4 border-b dark:border-slate-700 pb-2">Deleted Products</h2>
-             {deletedProducts.length === 0 ? <p className="text-sm text-slate-500 dark:text-slate-400">No products found.</p> : deletedProducts.map(p => (
-               <div key={p.prodCode} className="flex justify-between items-center bg-slate-50 dark:bg-slate-900/50 p-3 mb-2 rounded border border-slate-100 dark:border-slate-700">
-                  <div>
-                    <p className="font-semibold text-slate-900 dark:text-white">{p.description}</p>
-                    <p className="text-xs text-slate-500 dark:text-slate-400">Code: {p.prodCode}</p>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <button onClick={() => triggerRecovery('PRODUCT', p.prodCode)} className="text-green-600 dark:text-green-400 font-medium text-sm hover:underline">
-                      Restore
+            <h2 className="text-lg font-bold text-slate-800 dark:text-white mb-4 border-b dark:border-slate-700 pb-2">Suspended / Terminated Users</h2>
+            {terminatedUsers.length === 0 ? (
+              <p className="text-sm text-slate-500 dark:text-slate-400">No users found.</p>
+            ) : terminatedUsers.map(u => (
+              <div key={u.userid} className="flex justify-between items-center bg-slate-50 dark:bg-slate-900/50 p-3 mb-2 rounded border border-slate-100 dark:border-slate-700">
+                <div>
+                  <p className="font-semibold text-slate-900 dark:text-white">{u.username}</p>
+                  <p className="text-xs text-slate-500 dark:text-slate-400 uppercase">{u.record_status}</p>
+                </div>
+                <div className="flex items-center gap-3">
+                  <button onClick={() => triggerRecovery('USER', u.userid)} className="text-green-600 dark:text-green-400 font-medium text-sm hover:underline">
+                    Restore
+                  </button>
+                  {canHardDelete && (
+                    <button onClick={() => triggerRecovery('USER', u.userid, true)} className="text-red-600 dark:text-red-400 border border-red-200 dark:border-red-900/50 bg-red-50 dark:bg-red-900/20 px-2 py-1 rounded text-xs font-medium hover:bg-red-100 dark:hover:bg-red-900/40 transition-colors">
+                      Purge
                     </button>
-                    {canHardDelete && (
-                      <button onClick={() => triggerRecovery('PRODUCT', p.prodCode, true)} className="text-red-600 dark:text-red-400 border border-red-200 dark:border-red-900/50 bg-red-50 dark:bg-red-900/20 px-2 py-1 rounded text-xs font-medium hover:bg-red-100 dark:hover:bg-red-900/40 transition-colors">
-                        Purge
-                      </button>
-                    )}
-                  </div>
-               </div>
-             ))}
+                  )}
+                </div>
+              </div>
+            ))}
           </div>
         </div>
       )}

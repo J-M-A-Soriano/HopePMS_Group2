@@ -9,7 +9,7 @@ import { ActionConfirmModal } from '@/components/ActionConfirmModal';
 export function Products() {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
-  const { canManageProducts, canHardDelete, isSuperadmin } = useUserRights();
+  const { canManageProducts, canSoftDelete } = useUserRights();
   const { user, staffId } = useAuth();
 
   const [showModal, setShowModal] = useState(false);
@@ -322,7 +322,8 @@ export function Products() {
                 <th className="px-6 py-4 font-semibold text-slate-600 dark:text-slate-300 cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800 transition" onClick={() => handleSort('unitPrice')}>
                   <div className="flex items-center gap-1">Price {sortField === 'unitPrice' ? (sortDir === 'asc' ? <ArrowUp className="w-3 h-3"/> : <ArrowDown className="w-3 h-3"/>) : <ArrowUpDown className="w-3 h-3 text-slate-400"/>}</div>
                 </th>
-                {(canManageProducts || canHardDelete) && <th className="px-6 py-4 font-semibold text-slate-600 dark:text-slate-300 text-right">Actions</th>}
+                {(canManageProducts || canSoftDelete) && <th className="px-6 py-4 font-semibold text-slate-600 dark:text-slate-300">Stamp</th>}
+                {(canManageProducts || canSoftDelete) && <th className="px-6 py-4 font-semibold text-slate-600 dark:text-slate-300 text-right">Actions</th>}
               </tr>
             </thead>
             <tbody className="divide-y dark:divide-slate-700">
@@ -354,7 +355,17 @@ export function Products() {
                        </div>
                     </td>
                     <td className="px-6 py-4 font-semibold text-emerald-600 dark:text-emerald-400">${p.unitPrice?.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
-                    {(canManageProducts || canHardDelete) && (
+                    {(canManageProducts || canSoftDelete) && (
+                      <td className="px-6 py-4 text-xs">
+                        <span className="inline-flex items-center bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400 px-2 py-1 rounded font-medium uppercase">
+                          {p.record_status || 'ACTIVE'}
+                        </span>
+                        {p.updated_at && (
+                          <div className="mt-1 text-slate-400 dark:text-slate-500">{new Date(p.updated_at).toLocaleDateString()}</div>
+                        )}
+                      </td>
+                    )}
+                    {(canManageProducts || canSoftDelete) && (
                       <td className="px-6 py-4 text-right">
                         <div className="flex justify-end gap-2">
                           {canManageProducts && (
@@ -362,10 +373,10 @@ export function Products() {
                               <Edit className="w-4 h-4" />
                             </button>
                           )}
-                          {canHardDelete && (
-                            <button 
+                          {canSoftDelete && (
+                            <button
                               onClick={() => triggerDelete(p.prodCode)}
-                              className="text-red-600 dark:text-red-400 hover:text-red-900 dark:hover:text-red-300 p-2 hover:bg-red-50 dark:hover:bg-red-900/30 rounded transition-colors" title="Delete"
+                              className="text-red-600 dark:text-red-400 hover:text-red-900 dark:hover:text-red-300 p-2 hover:bg-red-50 dark:hover:bg-red-900/30 rounded transition-colors" title="Archive product"
                             >
                               <Trash2 className="w-4 h-4" />
                             </button>

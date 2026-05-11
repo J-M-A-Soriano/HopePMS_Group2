@@ -133,7 +133,7 @@ export function Layout() {
           {canViewVault && (
             <Link to="/archive" className={getLinkClasses('/archive')}>
               <ArchiveIcon className="h-4 w-4 text-red-500" />
-              Vault/Archive
+              Deleted Items
             </Link>
           )}
 
