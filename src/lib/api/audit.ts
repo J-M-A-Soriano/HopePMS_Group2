@@ -49,10 +49,10 @@ export const logAction = async (params: LogActionParams) => {
     let userRole = params.userRole;
 
     if ((!staffId || !userName || !userRole) && user) {
-        const { data: profile } = await supabase.from('user').select('staff_id, firstname, lastname, user_type').eq('userid', user.id).single();
+        const { data: profile } = await supabase.from('user').select('staff_id, username, user_type').eq('userid', user.id).single();
         if (profile) {
             staffId = staffId || profile.staff_id;
-            userName = userName || `${profile.firstname} ${profile.lastname}`;
+            userName = userName || profile.username;
             userRole = userRole || profile.user_type;
         }
     }

@@ -254,7 +254,7 @@ export function Products() {
           <div className="flex justify-between items-start">
             <div>
               <p className="text-sm font-medium text-slate-500 dark:text-slate-400">Inventory Valuation</p>
-              <h3 className="text-2xl font-bold text-slate-800 dark:text-white mt-1">${totalValue.toLocaleString('en-US', { minimumFractionDigits: 2 })}</h3>
+              <h3 className="text-2xl font-bold text-slate-800 dark:text-white mt-1">₱{totalValue.toLocaleString('en-US', { minimumFractionDigits: 2 })}</h3>
             </div>
             <div className="p-2 bg-emerald-50 dark:bg-emerald-900/30 rounded-lg"><TrendingUp className="w-5 h-5 text-emerald-600 dark:text-emerald-400" /></div>
           </div>
@@ -354,7 +354,7 @@ export function Products() {
                             isLow ? <span className="text-[10px] bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400 px-1.5 py-0.5 rounded font-bold uppercase">Low</span> : null}
                         </div>
                       </td>
-                      <td className="px-6 py-4 font-semibold text-emerald-600 dark:text-emerald-400">${p.unitPrice?.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                      <td className="px-6 py-4 font-semibold text-emerald-600 dark:text-emerald-400">₱{p.unitPrice?.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
                       {(canManageProducts || canSoftDelete) && (
                         <td className="px-6 py-4 text-xs">
                           <span className="inline-flex items-center bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400 px-2 py-1 rounded font-medium uppercase">
@@ -544,7 +544,7 @@ export function Products() {
                       {isEditing ? 'Current Active Price (Ledger Sync)' : 'Initial Baseline Price'} *
                     </label>
                     <div className="relative">
-                      <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500">$</span>
+                      <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500">₱</span>
                       <input
                         required
                         type="number"

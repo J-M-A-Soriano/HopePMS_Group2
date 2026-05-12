@@ -1,5 +1,6 @@
 import { supabase } from '../supabase';
 import { logAction } from './audit';
+import { getLocalISODate } from '../../utils/dateUtils';
 
 export type Product = {
   prodCode: string;
@@ -90,7 +91,7 @@ export const addProduct = async (
 
   // 2. Transact Price Baseline asynchronously
   const { error: priceError } = await supabase.from('pricehist').insert([{
-    effDate: new Date().toISOString().split('T')[0], // Automatically format YYYY-MM-DD
+    effDate: getLocalISODate(), // Automatically format YYYY-MM-DD local
     prodCode: product.prodCode,
     unitPrice: initialPrice,
     record_status: 'ACTIVE'
@@ -149,7 +150,7 @@ export const updateProduct = async (
   // Ledger Integration: Intercept price changes mathematically
   if (Math.abs(newPrice - currentPrice) > 0.001) {
     const { error: priceError } = await supabase.from('pricehist').upsert([{
-      effdate: new Date().toISOString().split('T')[0],
+      effdate: getLocalISODate(),
       prodcode: prodCode,
       unitprice: newPrice,
       record_status: 'ACTIVE'
