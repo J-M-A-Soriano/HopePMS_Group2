@@ -7,6 +7,8 @@ export type Notification = {
   message: string;
   type: string;
   is_read: boolean;
+  category?: string;
+  priority?: string;
   created_at: string;
 };
 
