@@ -36,44 +36,44 @@ export const fetchProducts = async () => {
   if (!prErr && prices) {
     // Sort chronologically ascending to ensure the latest records progressively overwrite the map
     prices.sort((a: any, b: any) => {
-       const aDate = a.effDate || a.effdate;
-       const bDate = b.effDate || b.effdate;
-       return new Date(aDate).getTime() - new Date(bDate).getTime();
+      const aDate = a.effDate || a.effdate;
+      const bDate = b.effDate || b.effdate;
+      return new Date(aDate).getTime() - new Date(bDate).getTime();
     });
-    
+
     prices.forEach((p: any) => {
-       const code = p.prodCode || p.prodcode;
-       const uPrice = p.unitPrice || p.unitprice;
-       priceMap.set(code, uPrice);
+      const code = p.prodCode || p.prodcode;
+      const uPrice = p.unitPrice || p.unitprice;
+      priceMap.set(code, uPrice);
     });
   }
 
   // Inject real time price values
   return prods.map((p: any) => {
-     const code = p.prodCode || p.prodcode;
-     return { 
-       ...p, 
-       prodCode: code,
-       unitPrice: priceMap.get(code) || 0
-     };
+    const code = p.prodCode || p.prodcode;
+    return {
+      ...p,
+      prodCode: code,
+      unitPrice: priceMap.get(code) || 0
+    };
   }) as Product[];
 };
 
 // Add a new product pipeline
 export const addProduct = async (
-  product: Omit<Product, 'record_status' | 'created_at' | 'updated_at' | 'unitPrice'>, 
+  product: Omit<Product, 'record_status' | 'created_at' | 'updated_at' | 'unitPrice'>,
   initialPrice: number = 0,
   staffId: string = '',
   performedBy: string = ''
 ) => {
   // 1. Securely Insert Core Baseline
-  const payload: any = { 
-    prodCode: product.prodCode, 
-    description: product.description, 
-    unit: product.unit, 
-    record_status: 'ACTIVE' 
+  const payload: any = {
+    prodCode: product.prodCode,
+    description: product.description,
+    unit: product.unit,
+    record_status: 'ACTIVE'
   };
-  
+
   if (product.category !== undefined) payload.category = product.category;
   if (product.supplier !== undefined) payload.supplier = product.supplier;
   if (product.sku !== undefined) payload.sku = product.sku;
@@ -118,22 +118,22 @@ export const addProduct = async (
 
 // Update an existing product
 export const updateProduct = async (
-  prodCode: string, 
+  prodCode: string,
   updates: Partial<Product>,
   newPrice: number = 0,
   currentPrice: number = 0,
-  staffId: string = '', 
+  staffId: string = '',
   performedBy: string = ''
 ) => {
-  const payload: any = { 
-    updated_at: new Date().toISOString() 
+  const payload: any = {
+    updated_at: new Date().toISOString()
   };
-  
+
   if (updates.description !== undefined) payload.description = updates.description;
   if (updates.unit !== undefined) payload.unit = updates.unit;
   if (updates.category !== undefined) payload.category = updates.category;
   if (updates.supplier !== undefined) payload.supplier = updates.supplier;
-  if (updates.sku !== undefined) payload.sku = updates.sku;
+  if (updates.sku !== undefined && updates.sku !== '') payload.sku = updates.sku;
   if (updates.stock_quantity !== undefined) payload.stock_quantity = updates.stock_quantity;
   if (updates.low_stock_threshold !== undefined) payload.low_stock_threshold = updates.low_stock_threshold;
 
@@ -145,34 +145,34 @@ export const updateProduct = async (
     .single();
 
   if (error) throw error;
-  
+
   // Ledger Integration: Intercept price changes mathematically
   if (Math.abs(newPrice - currentPrice) > 0.001) {
-     const { error: priceError } = await supabase.from('pricehist').upsert([{
-        effdate: new Date().toISOString().split('T')[0],
-        prodcode: prodCode,
-        unitprice: newPrice,
-        record_status: 'ACTIVE'
-     }], { onConflict: 'effdate, prodcode' });
+    const { error: priceError } = await supabase.from('pricehist').upsert([{
+      effdate: new Date().toISOString().split('T')[0],
+      prodcode: prodCode,
+      unitprice: newPrice,
+      record_status: 'ACTIVE'
+    }], { onConflict: 'effdate, prodcode' });
 
-     if (priceError) {
-        console.error("Failed to commit Price Update Ledger Baseline:", priceError);
-     } else if (performedBy) {
-        // Log the severe price override independently
-        await logAction({
-          actionType: 'PRICE_OVERRIDE',
-          module: 'Products',
-          status: 'Warning',
-          description: `Price overridden from ${currentPrice} to ${newPrice}`,
-          targetId: prodCode,
-          oldValue: { unitPrice: currentPrice },
-          newValue: { unitPrice: newPrice },
-          performedBy,
-          staffId
-        });
-     }
+    if (priceError) {
+      console.error("Failed to commit Price Update Ledger Baseline:", priceError);
+    } else if (performedBy) {
+      // Log the severe price override independently
+      await logAction({
+        actionType: 'PRICE_OVERRIDE',
+        module: 'Products',
+        status: 'Warning',
+        description: `Price overridden from ${currentPrice} to ${newPrice}`,
+        targetId: prodCode,
+        oldValue: { unitPrice: currentPrice },
+        newValue: { unitPrice: newPrice },
+        performedBy,
+        staffId
+      });
+    }
   }
-  
+
   if (performedBy) {
     await logAction({
       actionType: 'PRODUCT_UPDATE',
@@ -186,7 +186,7 @@ export const updateProduct = async (
       staffId
     });
   }
-  
+
   return data;
 };
 
